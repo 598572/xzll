@@ -30,3 +30,8 @@ logs/
 ### VS Code ###
 .vscode/
 
+### maven
+.mvn/
+mvnw
+mvnw.cmd
+.mvn
