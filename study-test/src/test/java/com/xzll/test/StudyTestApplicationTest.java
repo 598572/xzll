@@ -9,17 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@SpringBootTest(classes = Study01Application.class, webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(classes = StudyTestApplication.class, webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RunWith(SpringJUnit4ClassRunner.class)
-public class Study01ApplicationTests {
+public class StudyTestApplicationTest {
 
     @Autowired
-    private RedisClient redisClient;
+    protected RedisClient redisClient;
+
 
     @Test
     public void redisClient() {
         System.out.println(redisClient);
-        System.out.println(redisClient.set("234", "wyq"));
         System.out.println(redisClient.get("234"));
         CommonTest commonTest = new CommonTest();
         ApiTest apiTest = new ApiTest();

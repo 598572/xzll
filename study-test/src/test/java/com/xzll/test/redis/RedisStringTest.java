@@ -1,30 +1,30 @@
 package com.xzll.test.redis;
 
-import com.xzll.test.Study01ApplicationTests;
+import com.xzll.test.redis.common.RedisCommonTest;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.connection.BitFieldSubCommands;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.ValueOperations;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * redis string类型 原生命令与 redisTemplate 方法对应
  */
-public class RedisStringTest extends Study01ApplicationTests {
+public class RedisStringTest extends RedisCommonTest {
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
-
-
-    /**
-     * redis string类型 原生命令与 redisTemplate 方法对应
-     */
     @Test
     public void string() {
-        //SET key value
+
+        // string 类型操作
         ValueOperations<String, Object> string = redisTemplate.opsForValue();
+
 
         /**
          * Redis SET 命令用于设置给定 key 的值。如果 key 已经存储其他值， SET 就覆写旧值，且无视类型。
@@ -38,12 +38,13 @@ public class RedisStringTest extends Study01ApplicationTests {
          * redis 127.0.0.1:6379> SETNX KEY_NAME VALUE
          */
         Boolean aBoolean = string.setIfPresent("nxkey", "nxvalue");
-
+        System.out.println(aBoolean);
 
         /**
          * redis 127.0.0.1:6379> GETRANGE KEY_NAME start end
          */
-        //redisTemplate中没找到
+        String string2 = string.get("string", 0, 12);
+        System.out.println(string2);
 
 
         /**
@@ -60,7 +61,8 @@ public class RedisStringTest extends Study01ApplicationTests {
          *
          * redis 127.0.0.1:6379> SETEX KEY_NAME TIMEOUT VALUE
          */
-        //redisTemplate.expire() 不确定是不是这个
+        string.set("string","value",1,TimeUnit.DAYS);
+
 
 
         /**
@@ -113,6 +115,7 @@ public class RedisStringTest extends Study01ApplicationTests {
         Boolean getbit = string.getBit("getbit", 10);
         System.out.println(getbit);
 
+
         /**
          * Redis Decr 命令将 key 中储存的数字值减一。
          * 如果 key 不存在，那么 key 的值会先被初始化为 0 ，然后再执行 DECR 操作。
@@ -151,13 +154,11 @@ public class RedisStringTest extends Study01ApplicationTests {
         Long decrement = string.decrement("decrement");
         System.out.println(decrement);
 
+
         /**
          * Redis Decrby 命令将 key 所储存的值减去指定的减量值。
-         *
          * 如果 key 不存在，那么 key 的值会先被初始化为 0 ，然后再执行 DECRBY 操作。
-         *
          * 如果值包含错误的类型，或字符串类型的值不能表示为数字，那么返回一个错误。
-         *
          * 本操作的值限制在 64 位(bit)有符号数字表示之内。
          *
          * redis 127.0.0.1:6379> DECRBY KEY_NAME DECREMENT_AMOUNT
@@ -202,7 +203,9 @@ public class RedisStringTest extends Study01ApplicationTests {
          * (integer) 0
          *
          */
-        //暂时未找到
+        Long string1 = string.size("string");
+        System.out.println(string1);
+
 
         /**
          * Redis Msetnx 命令用于所有给定 key 都不存在时，同时设置一个或多个 key-value 对。
@@ -237,13 +240,11 @@ public class RedisStringTest extends Study01ApplicationTests {
         Boolean aBoolean1 = string.multiSetIfAbsent(mmap);
         System.out.println(aBoolean1);
 
+
         /**
          * Redis Incrby 命令将 key 中储存的数字加上指定的增量值。
-         *
          * 如果 key 不存在，那么 key 的值会先被初始化为 0 ，然后再执行 INCRBY 命令。
-         *
          * 如果值包含错误的类型，或字符串类型的值不能表示为数字，那么返回一个错误。
-         *
          * 本操作的值限制在 64 位(bit)有符号数字表示之内。
          *
          * redis 127.0.0.1:6379> INCRBY KEY_NAME INCR_AMOUNT
@@ -259,7 +260,6 @@ public class RedisStringTest extends Study01ApplicationTests {
          * redis> GET rank
          * "70"
          *
-         *
          * # key 不存在时
          *
          * redis> EXISTS counter
@@ -271,7 +271,6 @@ public class RedisStringTest extends Study01ApplicationTests {
          * redis> GET counter
          * "30"
          *
-         *
          * # key 不是数字值时
          *
          * redis> SET book "long long ago..."
@@ -280,16 +279,16 @@ public class RedisStringTest extends Study01ApplicationTests {
          * redis> INCRBY book 200
          * (error) ERR value is not an integer or out of range
          */
-        Long incr = string.increment("incr");
+        Long incr = string.increment("incr");//默认是+1
+        Long incrHelpYouSelf = string.increment("incr", 20);//指定+多少
         System.out.println(incr);
+        System.out.println(incrHelpYouSelf);
+
 
         /**
          * Redis Incrbyfloat 命令为 key 中所储存的值加上指定的浮点数增量值。
-         *
          * 如果 key 不存在，那么 INCRBYFLOAT 会先将 key 的值设为 0 ，再执行加法操作。
-         *
          * redis 127.0.0.1:6379> INCRBYFLOAT KEY_NAME INCR_AMOUNT
-         *
          * # 值和增量都不是指数符号
          *
          * redis> SET mykey 10.50
@@ -339,6 +338,171 @@ public class RedisStringTest extends Study01ApplicationTests {
         Double aFloat = string.increment("float", 0.2d);
         System.out.println(aFloat);
 
-        //todo
+
+        /**
+         * Redis Setrange 命令用指定的字符串覆盖给定 key 所储存的字符串值，覆盖的位置从偏移量 offset 开始。
+         * redis 127.0.0.1:6379> SETRANGE KEY_NAME OFFSET VALUE
+         *
+         * redis 127.0.0.1:6379> SET key1 "Hello World"
+         * OK
+         * redis 127.0.0.1:6379> SETRANGE key1 6 "Redis"
+         * (integer) 11
+         * redis 127.0.0.1:6379> GET key1
+         * "Hello Redis"
+         */
+        string.set("key","value",2);
+
+
+        /**
+         * Redis Psetex 命令以毫秒为单位设置 key 的生存时间。
+         * redis 127.0.0.1:6379> PSETEX key1 EXPIRY_IN_MILLISECONDS value1
+         *
+         * redis 127.0.0.1:6379> PSETEX mykey 1000 "Hello"
+         * OK
+         * redis 127.0.0.1:6379> PTTL mykey
+         * 999
+         * redis 127.0.0.1:6379> GET mykey
+         * 1) "Hello"
+         *
+         *
+         * //这个比较特殊 具体看源码 记得之前看过个文章讲过因为这个出现个bug 对 就是这个 https://juejin.cn/post/6890482501970558990
+         *
+         * if (!TimeUnit.MILLISECONDS.equals(unit) || !this.failsafeInvokePsetEx(connection)) {
+         *       connection.setEx(rawKey, TimeoutUtils.toSeconds(timeout, unit), rawValue);
+         * }
+         *
+         * public void set(K key, V value, final long timeout, final TimeUnit unit) {
+         *         final byte[] rawKey = this.rawKey(key);
+         *         final byte[] rawValue = this.rawValue(value);
+         *         this.execute(new RedisCallback<Object>() {
+         *             public Object doInRedis(RedisConnection connection) throws DataAccessException {
+         *                 this.potentiallyUsePsetEx(connection);
+         *                 return null;
+         *             }
+         *
+         *             public void potentiallyUsePsetEx(RedisConnection connection) {
+         *                 if (!TimeUnit.MILLISECONDS.equals(unit) || !this.failsafeInvokePsetEx(connection)) {
+         *                     connection.setEx(rawKey, TimeoutUtils.toSeconds(timeout, unit), rawValue);
+         *                 }
+         *
+         *             }
+         *
+         *             private boolean failsafeInvokePsetEx(RedisConnection connection) {
+         *                 boolean failed = false;
+         *
+         *                 try {
+         *                     connection.pSetEx(rawKey, timeout, rawValue);
+         *                 } catch (UnsupportedOperationException var4) {
+         *                     failed = true;
+         *                 }
+         *
+         *                 return !failed;
+         *             }
+         *         }, true);
+         *     }
+         */
+        string.set("str","value",10, TimeUnit.DAYS);
+
+
+
+        /**
+         * Redis Append 命令用于为指定的 key 追加值。
+         * 如果 key 已经存在并且是一个字符串， APPEND 命令将 value 追加到 key 原来的值的末尾。
+         * 如果 key 不存在， APPEND 就简单地将给定 key 设为 value ，就像执行 SET key value 一样。
+         *
+         * redis 127.0.0.1:6379> APPEND KEY_NAME NEW_VALUE
+         *
+         * # 对不存在的 key 执行 APPEND
+         *
+         * redis> EXISTS myphone               # 确保 myphone 不存在
+         * (integer) 0
+         *
+         * redis> APPEND myphone "nokia"       # 对不存在的 key 进行 APPEND ，等同于 SET myphone "nokia"
+         * (integer) 5                         # 字符长度
+         *
+         *
+         * # 对已存在的字符串进行 APPEND
+         *
+         * redis> APPEND myphone " - 1110"     # 长度从 5 个字符增加到 12 个字符
+         * (integer) 12
+         *
+         * redis> GET myphone
+         * "nokia - 1110"
+         *
+         */
+        Integer append = string.append("appendkey", "appendvalue");
+        System.out.println(append);
+
+
+        /**
+         * Redis Getset 命令用于设置指定 key 的值，并返回 key 旧的值。
+         * redis 127.0.0.1:6379> GETSET KEY_NAME VALUE
+         *
+         * redis 127.0.0.1:6379> GETSET mynewkey "This is my test key"
+         * (nil)
+         * redis 127.0.0.1:6379> GETSET mynewkey "This is my new value to test getset"
+         * "This is my test key"
+         */
+        Object oldKey = string.getAndSet("getsetkey", "newvalue");
+        System.out.println(oldKey);
+
+
+        /**
+         * Redis Mget 命令返回所有(一个或多个)给定 key 的值。 如果给定的 key 里面，有某个 key 不存在，那么这个 key 返回特殊值 nil 。
+         *
+         * redis 127.0.0.1:6379> MGET KEY1 KEY2 .. KEYN
+         *
+         * redis 127.0.0.1:6379> SET key1 "hello"
+         * OK
+         * redis 127.0.0.1:6379> SET key2 "world"
+         * OK
+         * redis 127.0.0.1:6379> MGET key1 key2 someOtherKey
+         * 1) "Hello"
+         * 2) "World"
+         * 3) (nil)
+         */
+        List<String> keys = new ArrayList<>();
+        keys.add("key1");
+        keys.add("key2");
+        List<Object> objects = string.multiGet(keys);
+        System.out.println(objects);
+
+
+        /**
+         * Redis Incr 命令将 key 中储存的数字值增一。
+         * 如果 key 不存在，那么 key 的值会先被初始化为 0 ，然后再执行 INCR 操作。
+         * 如果值包含错误的类型，或字符串类型的值不能表示为数字，那么返回一个错误。
+         * 本操作的值限制在 64 位(bit)有符号数字表示之内。
+         *
+         * redis 127.0.0.1:6379> INCR KEY_NAME
+         *
+         * redis> SET page_view 20
+         * OK
+         *
+         * redis> INCR page_view
+         * (integer) 21
+         *
+         * redis> GET page_view    # 数字值在 Redis 中以字符串的形式保存
+         * "21"
+         */
+        //与上边的increment差不多
+        Long incrone = string.increment("incrone");
+        System.out.println(incrone);
+
+
+
+        /**
+         *  操作 bitmap
+         *  可以使用redisTemplate的bitField 但是感觉不太方便
+         *  //        BitFieldSubCommands bitFieldSubCommands = BitFieldSubCommands.create().get(BitFieldSubCommands.BitFieldType.unsigned(date.getDayOfMonth())).valueAt(0);
+         * //        List<Long> list = redisTemplate.opsForValue().bitField(buildSignKey(uid, date),bitFieldSubCommands);
+         *   使用下边的感觉更清晰
+         */
+        Long count = redisTemplate.execute((RedisCallback<Long>) redisConnection -> redisConnection.bitCount("bitmapkey".getBytes()));
+        System.out.println(count);
+
+        //TODO
+
     }
+
 }
