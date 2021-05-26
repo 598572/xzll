@@ -2,53 +2,84 @@ package com.xzll.test.redis;
 
 import com.xzll.test.redis.common.RedisCommonTest;
 import org.junit.Test;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.connection.BitFieldSubCommands;
-import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
-import org.springframework.data.redis.core.ValueOperations;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-/**
- * redis string类型 原生命令与 redisTemplate 方法对应
- */
+
 public class RedisStringTest extends RedisCommonTest {
 
+
+    /**
+     * redis string类型 原生命令与 redisTemplate 方法对应
+     */
     @Test
     public void string() {
-
-        // string 类型操作
-        ValueOperations<String, Object> string = redisTemplate.opsForValue();
-
 
         /**
          * Redis SET 命令用于设置给定 key 的值。如果 key 已经存储其他值， SET 就覆写旧值，且无视类型。
          *
          * redis 127.0.0.1:6379> SET KEY_NAME VALUE
          */
-        string.set("key", "value");
+        string.set("set:key", "set:value");
 
 
         /**
+         * Redis Setnx（SET if Not eXists） 命令在指定的 key 不存在时，为 key 设置指定的值。
+         *
          * redis 127.0.0.1:6379> SETNX KEY_NAME VALUE
+         *
+         * redis> EXISTS job                # job 不存在
+         * (integer) 0
+         *
+         * redis> SETNX job "programmer"    # job 设置成功
+         * (integer) 1
+         *
+         * redis> SETNX job "code-farmer"   # 尝试覆盖 job ，失败
+         * (integer) 0
+         *
+         * redis> GET job                   # 没有被覆盖
+         * "programmer"
          */
-        Boolean aBoolean = string.setIfPresent("nxkey", "nxvalue");
+        Boolean aBoolean = string.setIfPresent("setnx:key", "setnx:value");
         System.out.println(aBoolean);
 
+        //setnex
+        Boolean nex = string.setIfPresent("setnex:key", "setnex:value",10,TimeUnit.SECONDS);
+        System.out.println(nex);
+
         /**
+         * Redis Getrange 命令用于获取存储在指定 key 中字符串的子字符串。字符串的截取范围由 start 和 end 两个偏移量决定(包括 start 和 end 在内)。
+         *
          * redis 127.0.0.1:6379> GETRANGE KEY_NAME start end
+         *
+         * redis 127.0.0.1:6379> SET mykey "This is my test key"
+         * OK
+         * redis 127.0.0.1:6379> GETRANGE mykey 0 3
+         * "This"
+         * redis 127.0.0.1:6379> GETRANGE mykey 0 -1
+         * "This is my test key"
+         *
          */
         String string2 = string.get("string", 0, 12);
         System.out.println(string2);
 
 
         /**
+         * Redis Mset 命令用于同时设置一个或多个 key-value 对。
+         *
          * redis 127.0.0.1:6379> MSET key1 value1 key2 value2 .. keyN valueN
+         *
+         * redis 127.0.0.1:6379> MSET key1 "Hello" key2 "World"
+         * OK
+         * redis 127.0.0.1:6379> GET key1
+         * "Hello"
+         * redis 127.0.0.1:6379> GET key2
+         * 1) "World"
+         *
          */
         Map<String, Object> map = new HashMap<>();
         map.put("key1", "value1");
@@ -60,6 +91,13 @@ public class RedisStringTest extends RedisCommonTest {
          * Redis Setex 命令为指定的 key 设置值及其过期时间。如果 key 已经存在， SETEX 命令将会替换旧的值。
          *
          * redis 127.0.0.1:6379> SETEX KEY_NAME TIMEOUT VALUE
+         *
+         * redis 127.0.0.1:6379> SETEX mykey 60 redis
+         * OK
+         * redis 127.0.0.1:6379> TTL mykey
+         * 60
+         * redis 127.0.0.1:6379> GET mykey
+         * "redis
          */
         string.set("string","value",1,TimeUnit.DAYS);
 

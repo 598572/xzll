@@ -8,15 +8,14 @@ import org.springframework.data.redis.core.HashOperations;
 
 import java.util.*;
 
-/**
- * redis map类型 原生命令与 redisTemplate 方法对应
- */
+
 public class RedisMapTest extends RedisCommonTest {
 
+    /**
+     * redis map类型 原生命令与 redisTemplate 方法对应
+     */
     @Test
     public void map() {
-        //map操作类型
-        HashOperations<String, Object, Object> map = redisTemplate.opsForHash();
 
         /**
          *Redis Hmset 命令用于同时将多个 field-value (字段-值)对设置到哈希表中。

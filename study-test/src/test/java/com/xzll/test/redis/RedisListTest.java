@@ -7,15 +7,15 @@ import org.springframework.data.redis.core.ListOperations;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-/**
- * redis list类型 原生命令与 redisTemplate 方法对应
- */
+
 public class RedisListTest extends RedisCommonTest {
 
+
+    /**
+     * redis list类型 原生命令与 redisTemplate 方法对应
+     */
     @Test
     public void listOperations() {
-        //list操作类型
-        ListOperations<String, Object> list = redisTemplate.opsForList();
 
         /**
          * Redis Lindex 命令用于通过索引获取列表中的元素。你也可以使用负数下标，以 -1 表示列表的最后一个元素， -2 表示列表的倒数第二个元素，以此类推。
