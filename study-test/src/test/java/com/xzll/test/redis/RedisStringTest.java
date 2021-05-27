@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class RedisStringTest extends RedisCommonTest {
@@ -18,6 +20,8 @@ public class RedisStringTest extends RedisCommonTest {
      */
     @Test
     public void string() {
+
+        clearDB();
 
         /**
          * Redis SET 命令用于设置给定 key 的值。如果 key 已经存储其他值， SET 就覆写旧值，且无视类型。
@@ -64,7 +68,7 @@ public class RedisStringTest extends RedisCommonTest {
          * "This is my test key"
          *
          */
-        String string2 = string.get("string", 0, 12);
+        String string2 = string.get("set:key", 0, 2);
         System.out.println(string2);
 
 
@@ -82,9 +86,11 @@ public class RedisStringTest extends RedisCommonTest {
          *
          */
         Map<String, Object> map = new HashMap<>();
-        map.put("key1", "value1");
-        map.put("key2", "value2");
+        map.put("multiSet:key1", "v1");
+        map.put("multiSet:key2", "v2");
         string.multiSet(map);
+        List<Object> objects1 = string.multiGet(Stream.of("multiSet:key1", "multiSet:key2").collect(Collectors.toList()));
+        System.out.println(objects1);
 
 
         /**
@@ -107,12 +113,13 @@ public class RedisStringTest extends RedisCommonTest {
          * Redis Get 命令用于获取指定 key 的值。如果 key 不存在，返回 nil 。如果key 储存的值不是字符串类型，返回一个错误。
          * redis 127.0.0.1:6379> GET KEY_NAME
          */
-        Object key_name = string.get("key_name");
+        Object key_name = string.get("string");
         System.out.println(key_name);
 
 
         /**
          * Redis Setbit 命令用于对 key 所储存的字符串值，设置或清除指定偏移量上的位(bit)。
+         * 返回  指定偏移量原来储存的位。初始都是0也就是 false
          * redis 127.0.0.1:6379> Setbit KEY_NAME OFFSET
          *
          * redis> SETBIT bit 10086 1
@@ -124,7 +131,7 @@ public class RedisStringTest extends RedisCommonTest {
          * redis> GETBIT bit 100   # bit 默认被初始化为 0
          * (integer) 0
          */
-        Boolean setbit = string.setBit("getbit", 10, true);
+        Boolean setbit = string.setBit("setbit", 10, true);
         System.out.println(setbit);
 
 
@@ -150,8 +157,10 @@ public class RedisStringTest extends RedisCommonTest {
          * (integer) 1
          */
 
-        Boolean getbit = string.getBit("getbit", 10);
-        System.out.println(getbit);
+        Boolean getbit = string.getBit("bitkey", 10);
+        System.out.println(getbit);//true
+        Boolean getbit2 = string.getBit("bitkey", 2);
+        System.out.println(getbit2);//false
 
 
         /**
@@ -189,8 +198,11 @@ public class RedisStringTest extends RedisCommonTest {
          * (error) ERR value is not an integer or out of range
          *
          */
-        Long decrement = string.decrement("decrement");
-        System.out.println(decrement);
+        string.set("decrement:key",19);
+        Long decrement = string.decrement("decrement:key");
+        System.out.println(decrement);//18
+
+
 
 
         /**
@@ -218,8 +230,8 @@ public class RedisStringTest extends RedisCommonTest {
          * redis> DECRBY pages 10
          * (integer) -10
          */
-        Long decrement_num = string.decrement("decrement_num", 20);
-        System.out.println(decrement_num);
+        Long decrement1 = string.decrement("decrement:key",2);
+        System.out.println(decrement1);
 
 
         /**
@@ -241,7 +253,8 @@ public class RedisStringTest extends RedisCommonTest {
          * (integer) 0
          *
          */
-        Long string1 = string.size("string");
+        string.set("size:key","hellohzzller");
+        Long string1 = string.size("size:key");
         System.out.println(string1);
 
 
@@ -273,8 +286,8 @@ public class RedisStringTest extends RedisCommonTest {
          *
          */
         Map<String, Object> mmap = new HashMap<>();
-        mmap.put("mkey1", "mvalue1");
-        mmap.put("mkey2", "mvalue2");
+        mmap.put("multiSetIfAbsent:key1", "v1");
+        mmap.put("multiSetIfAbsent:key2", "mvalue2");
         Boolean aBoolean1 = string.multiSetIfAbsent(mmap);
         System.out.println(aBoolean1);
 
@@ -419,7 +432,9 @@ public class RedisStringTest extends RedisCommonTest {
          *             }
          *
          *             public void potentiallyUsePsetEx(RedisConnection connection) {
+         *                 //可以看到 如果单位不是MILLISECONDS 那么都会转成秒 如果是MILLISECONDS 那么走failsafeInvokePsetEx方法
          *                 if (!TimeUnit.MILLISECONDS.equals(unit) || !this.failsafeInvokePsetEx(connection)) {
+         *
          *                     connection.setEx(rawKey, TimeoutUtils.toSeconds(timeout, unit), rawValue);
          *                 }
          *
@@ -429,7 +444,7 @@ public class RedisStringTest extends RedisCommonTest {
          *                 boolean failed = false;
          *
          *                 try {
-         *                     connection.pSetEx(rawKey, timeout, rawValue);
+         *                     connection.pSetEx(rawKey, timeout, rawValue);//这个方法的实现逻辑 就是 https://juejin.cn/post/6890482501970558990 这个问题的原因
          *                 } catch (UnsupportedOperationException var4) {
          *                     failed = true;
          *                 }
@@ -439,8 +454,7 @@ public class RedisStringTest extends RedisCommonTest {
          *         }, true);
          *     }
          */
-        string.set("str","value",10, TimeUnit.DAYS);
-
+        string.set("str","value",10, TimeUnit.MILLISECONDS);
 
 
         /**
@@ -468,7 +482,7 @@ public class RedisStringTest extends RedisCommonTest {
          * "nokia - 1110"
          *
          */
-        Integer append = string.append("appendkey", "appendvalue");
+        Integer append = string.append("append:key", "append:value");
         System.out.println(append);
 
 
@@ -481,6 +495,7 @@ public class RedisStringTest extends RedisCommonTest {
          * redis 127.0.0.1:6379> GETSET mynewkey "This is my new value to test getset"
          * "This is my test key"
          */
+        string.set("getsetkey","oldvalue");
         Object oldKey = string.getAndSet("getsetkey", "newvalue");
         System.out.println(oldKey);
 
@@ -499,9 +514,13 @@ public class RedisStringTest extends RedisCommonTest {
          * 2) "World"
          * 3) (nil)
          */
-        List<String> keys = new ArrayList<>();
+        List<Object> keys = new ArrayList<>();
         keys.add("key1");
         keys.add("key2");
+        Map<Object,Object> mapM = new HashMap<>();
+        mapM.put("key1","v1");
+        mapM.put("key2","v2");
+        string.multiSet(mapM);
         List<Object> objects = string.multiGet(keys);
         System.out.println(objects);
 
@@ -524,8 +543,9 @@ public class RedisStringTest extends RedisCommonTest {
          * "21"
          */
         //与上边的increment差不多
-        Long incrone = string.increment("incrone");
-        System.out.println(incrone);
+        Long incrone = string.increment("increment:one");
+        Object o = string.get("increment:one");
+        System.out.println(o.toString());
 
 
 
@@ -535,11 +555,36 @@ public class RedisStringTest extends RedisCommonTest {
          *  //        BitFieldSubCommands bitFieldSubCommands = BitFieldSubCommands.create().get(BitFieldSubCommands.BitFieldType.unsigned(date.getDayOfMonth())).valueAt(0);
          * //        List<Long> list = redisTemplate.opsForValue().bitField(buildSignKey(uid, date),bitFieldSubCommands);
          *   使用下边的感觉更清晰
+         *
+         *
+         *
+         * BITCOUNT key [start] [end]
+         *
+         * 计算给定字符串中，被设置为 1 的比特位的数量。
+         *
+         * 一般情况下，给定的整个字符串都会被进行计数，通过指定额外的 start 或 end 参数，可以让计数只在特定的位上进行。
+         *
+         * start 和 end 参数的设置和 GETRANGE 命令类似，都可以使用负数值：比如 -1 表示最后一个位，而 -2 表示倒数第二个位，以此类推。
+         *
+         * 不存在的 key 被当成是空字符串来处理，因此对一个不存在的 key 进行 BITCOUNT 操作，结果为 0 。
+         *
+         *
          */
-        Long count = redisTemplate.execute((RedisCallback<Long>) redisConnection -> redisConnection.bitCount("bitmapkey".getBytes()));
-        System.out.println(count);
+        Boolean aBoolean2 = string.setBit("bit:key1", 12, true);
+        Boolean aBoolean3 = string.setBit("bit:key1", 14, true);
+        Boolean aBoolean4 = string.setBit("bit:key1", 15, true);
+        Boolean aBoolean5 = string.setBit("bit:key1", 23, true);
+        Boolean bit = string.getBit("bit:key1", 0);
+        System.out.println(string.getBit("bit:key1", 12));
+        System.out.println(string.getBit("bit:key1", 14));
+        System.out.println(string.getBit("bit:key1", 15));
 
-        //TODO
+        System.out.println(bit);
+        Long count = redisTemplate.execute((RedisCallback<Long>) redisConnection -> redisConnection.bitCount("bit:key1".getBytes()));
+        Long count2 = redisTemplate.execute((RedisCallback<Long>) redisConnection -> redisConnection.bitCount("bit:key1".getBytes(),100,500));
+        Long count3 = redisTemplate.execute((RedisCallback<Long>) redisConnection -> redisConnection.bitCount("hzzbit".getBytes()));
+        Long count4 = redisTemplate.execute((RedisCallback<Long>) redisConnection -> redisConnection.bitCount("hzzbit".getBytes(),0,100));
+        System.out.println("bitCount  "+count);
 
     }
 

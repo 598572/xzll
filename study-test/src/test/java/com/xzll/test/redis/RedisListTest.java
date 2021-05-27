@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.ListOperations;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 
 public class RedisListTest extends RedisCommonTest {
@@ -16,6 +17,8 @@ public class RedisListTest extends RedisCommonTest {
      */
     @Test
     public void listOperations() {
+
+        clearDB();
 
         /**
          * Redis Lindex 命令用于通过索引获取列表中的元素。你也可以使用负数下标，以 -1 表示列表的最后一个元素， -2 表示列表的倒数第二个元素，以此类推。
@@ -36,10 +39,10 @@ public class RedisListTest extends RedisCommonTest {
          * redis 127.0.0.1:6379> LINDEX mylist 3        # index不在 mylist 的区间范围内
          * (nil)
          */
-        list.leftPush("mylist", "hzz");
-        list.leftPush("mylist", "hello");
-        Object index0 = list.index("indx", 0);
-        Object indexdesc = list.index("indx", -1);
+        list.leftPush("index:key", "hzz");
+        list.leftPush("index:key", "hello"); // ["hello","hzz"]
+        Object index0 = list.index("index:key", 0);
+        Object indexdesc = list.index("index:key", -1);//负数代表倒数  倒数第一个
         System.out.println(index0);
         System.out.println(indexdesc);
 
@@ -64,7 +67,7 @@ public class RedisListTest extends RedisCommonTest {
          * 3) "bar"
          *
          */
-        Long aLong = list.rightPush("rightkey", "var1");
+        Long aLong = list.rightPush("rightkey", "var1");//和leftpush基本一样 不做演示
         System.out.println(aLong);
 
 
@@ -84,8 +87,9 @@ public class RedisListTest extends RedisCommonTest {
          * 3) "bar"
          *
          */
-        List<Object> list1 = list.range("list1", 0, -1);//取所有
-        System.out.println(list1);
+        list.leftPush("range:key", Stream.of("var1","var2").toArray());
+        List<Object> list1 = list.range("range:key", 0, -1);//取所有
+        System.out.println("range:key  "+list1);
 
 
         /**
@@ -109,10 +113,15 @@ public class RedisListTest extends RedisCommonTest {
          * "bar"
          *
          */
-        Object newlistkey = list.rightPopAndLeftPush("rightPopAndLeftPush:key", "newlistkey");
+
+        list.rightPushAll("rightPopAndLeftPush:key",Stream.of("var1","var2","varr3").toArray());
+        Object newlistkey = list.rightPopAndLeftPush("rightPopAndLeftPush:key", "rightPopAndLeftPush:new");
         System.out.println(newlistkey);
-        List<Object> newlistkey1 = list.range("newlistkey", 0, -1);
-        System.out.println(newlistkey1);
+        List<Object> newlistkey1 = list.range("rightPopAndLeftPush:new", 0, -1);
+        System.out.println("rightPopAndLeftPush:key"+list.range("rightPopAndLeftPush:key", 0, -1));
+        System.out.println("rightPopAndLeftPush:new"+newlistkey1);
+
+
 
         /**
          * Redis Blpop 命令移出并获取列表的第一个元素， 如果列表没有元素会阻塞列表直到等待超时或发现可弹出元素为止。
@@ -124,8 +133,11 @@ public class RedisListTest extends RedisCommonTest {
          * (nil)
          * (100.06s)
          */
-        Object list2 = list.leftPop("list", 20, TimeUnit.SECONDS);
-        System.out.println(list2);
+        list.leftPush("leftpop:key","var1");
+        list.leftPush("leftpop:key","var2");
+        Object list2 = list.leftPop("leftpop:key", 20, TimeUnit.SECONDS);
+        System.out.println("list.range(\"leftpop:key\",0,-1) "+list.range("leftpop:key",0,-1));
+        System.out.println("leftpop:key "+list2);
 
 
         /**
@@ -139,7 +151,7 @@ public class RedisListTest extends RedisCommonTest {
          * (nil)
          * (100.06s)
          */
-        Object list3 = list.rightPop("list", 10, TimeUnit.SECONDS);
+        Object list3 = list.rightPop("list", 10, TimeUnit.SECONDS);//和leftPop基本一样 略
         System.out.println(list3);
 
 
@@ -173,7 +185,7 @@ public class RedisListTest extends RedisCommonTest {
          *
          * 和 Rpoplpush 差不多 只不过多个阻塞这个特性
          */
-        Object newkey = list.rightPopAndLeftPush("rightPopAndLeftPush:key", "newkey");
+        Object newkey = list.rightPopAndLeftPush("rightPopAndLeftPush:key", "newkey",10,TimeUnit.DAYS); //和 rightPopAndLeftPush基本一样 多了个阻塞的特性
         System.out.println(newkey);
 
         /**
@@ -196,8 +208,10 @@ public class RedisListTest extends RedisCommonTest {
          * redis 127.0.0.1:6379> LREM mylist -2 "hello"
          * (integer) 2
          */
-        Long remove = list.remove("mylist", 0, "hello");
-        System.out.println(remove);
+        list.leftPushAll("remove:key",Stream.of("var1","var2","var3","var4","var3").toArray());
+        Long remove = list.remove("remove:key", 0, "var3");//删除操作
+        System.out.println("remove count "+remove);
+        System.out.println(list.range("remove:key",0,-1));
 
 
         /**
@@ -212,7 +226,10 @@ public class RedisListTest extends RedisCommonTest {
          * redis 127.0.0.1:6379> LLEN list1
          * (integer) 2
          */
-        Long mylist = list.size("mylist");
+        list.rightPush("size:key","var1");
+        list.rightPush("size:key","var2");
+        list.rightPush("size:key","var3");
+        Long mylist = list.size("size:key");
         System.out.println(mylist);
 
         /**
@@ -237,7 +254,15 @@ public class RedisListTest extends RedisCommonTest {
          * 2) "foo"
          * 3) "bar"
          */
-        list.trim("mylist", 2, 4);//void
+
+        list.rightPush("trim:key","var1");
+        list.rightPush("trim:key","var2");
+        list.rightPush("trim:key","var3");
+        list.rightPush("trim:key","var4");
+        list.rightPush("trim:key","var5");
+        list.rightPush("trim:key","var6");
+        list.trim("trim:key", 2, 4);//void
+        System.out.println("trim:key  "+list.range("trim:key",0,-1));
 
 
         /**
@@ -252,8 +277,7 @@ public class RedisListTest extends RedisCommonTest {
          * redis 127.0.0.1:6379> LPOP list1
          * "foo"
          */
-        Object mylist1 = list.leftPop("mylist");
-        System.out.println(mylist1);
+        Object mylist1 = list.leftPop("leftpop");//从左边移除 上边已做演示
 
         /**
          * Redis Lpushx 将一个或多个值插入到已存在的列表头部，列表不存在时操作无效。
@@ -270,8 +294,13 @@ public class RedisListTest extends RedisCommonTest {
          * 1) "foo"
          * 2) "bar"
          */
-        Long aLong1 = list.leftPush("mylist", "var4");
-        System.out.println(aLong1);
+        list.leftPush("leftPushIfPresent:key","var1");
+        list.leftPush("leftPushIfPresent:key","var2");
+        list.leftPush("leftPushIfPresent:key","var3");
+        list.leftPush("leftPushIfPresent:key","var4");
+        Long aLong1 = list.leftPushIfPresent("leftPushIfPresent:key", "var4");
+        Long aLong2 = list.leftPushIfPresent("leftPushIfPresent:key", "var1");
+        System.out.println("leftPushIfPresent:key  "+list.range("leftPushIfPresent:key",0,-1));
 
         /**
          * Redis Linsert 命令用于在列表的元素前或者后插入元素。 当指定元素不存在于列表中时，不执行任何操作。 当列表不存在时，被视为空列表，不执行任何操作。 如果 key 不是列表类型，返回一个错误。
@@ -289,8 +318,12 @@ public class RedisListTest extends RedisCommonTest {
          * 2) "Yes"
          * 3) "bar"
          */
-        Long aLong5 = list.leftPush("list", "value", "value2");
-        System.out.println(aLong5);
+        list.leftPush("linsert:key","var1");
+        list.leftPush("linsert:key","var2");
+        list.leftPush("linsert:key","var3");
+        Long aLong5 = list.leftPush("linsert:key", "var2", "var100");
+        Long aLong6 = list.rightPush("linsert:key", "var2", "var500");
+        System.out.println("linsert:key  "+list.range("linsert:key",0,-1));
 
 
         /**
@@ -313,7 +346,7 @@ public class RedisListTest extends RedisCommonTest {
          * 2) "hello"
          * 3) "foo"
          */
-        Object mylist2 = list.rightPop("mylist");
+        Object mylist2 = list.rightPop("mylist");//与leftPop基本一样 略
         System.out.println(mylist2);
 
         /**
@@ -339,8 +372,11 @@ public class RedisListTest extends RedisCommonTest {
          * 3) "foo"
          * 4) "hello"
          */
-        Long aLong2 = list.leftPush("mylist", "mylist02");
-        System.out.println(aLong2);
+        list.leftPush("lsetindex:key","var1");
+        list.leftPush("lsetindex:key","var2");
+        list.leftPush("lsetindex:key","var3");
+        list.set("lsetindex:key", 1,"var4");
+        System.out.println("lsetindex:key\":  "+list.range("lsetindex:key",0,-1));//lsetindex:key":  [var3, var4, var1]
 
         /**
          * Redis Lpush 命令将一个或多个值插入到列表头部。 如果 key 不存在，一个空列表会被创建并执行 LPUSH 操作。 当 key 存在但不是列表类型时，返回一个错误。
@@ -355,7 +391,7 @@ public class RedisListTest extends RedisCommonTest {
          * 1) "foo"
          * 2) "bar
          */
-        Long aLong3 = list.leftPush("mylist", "var1");
+        Long aLong3 = list.leftPush("leftPush:key", "var1");//上边已有 略
         System.out.println(aLong3);
 
         /**
@@ -373,7 +409,7 @@ public class RedisListTest extends RedisCommonTest {
          * 1) "hello"
          * 2) "foo"
          */
-        Long aLong4 = list.rightPush("mylist", "var03");
+        Long aLong4 = list.rightPush("rightPush:key", "var03");//略
         System.out.println(aLong4);
 
     }

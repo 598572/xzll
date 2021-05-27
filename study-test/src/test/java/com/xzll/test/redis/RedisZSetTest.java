@@ -19,6 +19,8 @@ public class RedisZSetTest extends RedisCommonTest {
     @Test
     public void setOperations() {
 
+        clearDB();
+
         /*
         Redis Zrevrank 命令返回有序集中成员的排名。其中有序集成员按分数值递减(从大到小)排序。
         排名以 0 为底，也就是说， 分数值最大的成员排名为 0 。

@@ -13,21 +13,21 @@ import java.util.concurrent.TimeUnit;
  */
 public class RedisCommonTest extends StudyTestApplicationTest {
 
-    protected RedisTemplate<String, Object> redisTemplate;
+    protected RedisTemplate<Object, Object> redisTemplate;
 
-    protected ListOperations<String, Object> list;
-    protected HashOperations<String, Object, Object> map;
-    protected SetOperations<String, Object> set;
-    protected ValueOperations<String, Object> string;
-    protected ZSetOperations<String, Object> zSet;
-    protected HyperLogLogOperations<String, Object> hyperLogLog;
+    protected ListOperations<Object, Object> list;
+    protected HashOperations<Object, Object, Object> map;
+    protected SetOperations<Object, Object> set;
+    protected ValueOperations<Object, Object> string;
+    protected ZSetOperations<Object, Object> zSet;
+    protected HyperLogLogOperations<Object, Object> hyperLogLog;
 
     /**
      * 初始化各个数据类型对象
      */
     @PostConstruct
     public void init() {
-        redisTemplate = (RedisTemplate<String, Object>) SpringUtil.getBean("redisTemplate");
+        redisTemplate = (RedisTemplate<Object, Object>) SpringUtil.getBean("redisTemplate");
         hyperLogLog = redisTemplate.opsForHyperLogLog();
         string = redisTemplate.opsForValue();
         list = redisTemplate.opsForList();
@@ -43,6 +43,10 @@ public class RedisCommonTest extends StudyTestApplicationTest {
         /**
          *
          */
+    }
+
+    public void clearDB(){
+        redisTemplate.getConnectionFactory().getConnection().flushDb();
     }
 
 }

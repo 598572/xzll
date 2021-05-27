@@ -18,6 +18,8 @@ public class RedisSetTest extends RedisCommonTest {
     @Test
     public void setOperations() {
 
+        clearDB();
+
         /*
         Redis Sunion 命令返回给定集合的并集。不存在的集合 key 被视为空集。
 
