@@ -7,6 +7,8 @@ import org.springframework.data.redis.core.SetOperations;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class RedisSetTest extends RedisCommonTest {
@@ -44,7 +46,7 @@ public class RedisSetTest extends RedisCommonTest {
         set.add("hello", "var1", "var2", "var3", "var7");
         set.add("world", "var2", "var4", "var5", "var6");
         Set<Object> union = set.union("hello", "world");
-        System.out.println(union);
+        System.out.println(union);// [var1, var5, var6, var2, var4, var3, var7]
 
         /*
         Redis Scard 命令返回集合中元素的数量。
@@ -61,7 +63,7 @@ public class RedisSetTest extends RedisCommonTest {
          */
         set.add("size", "var1", "var2", "var3");
         Long size = set.size("size");
-        System.out.println(size);
+        System.out.println(size);// 3
 
         /*
         Redis Srandmember 命令用于返回集合中的一个随机元素。
@@ -98,14 +100,14 @@ public class RedisSetTest extends RedisCommonTest {
         10) "var1"
 
          */
-        List<Object> hello = set.randomMembers("hello", 10);//该方法count最终会转换成负数 也就是以为这返回元素中可能会有重复数据 长度为count的绝对值
-        System.out.println(hello);
-        Set<Object> hello1 = set.distinctRandomMembers("hello", 2);//该方法不会转换成负数 不会有重复数据 因为这是set保证的
-        System.out.println(hello1);
+        Long add1 = set.add("randomMembers:key", "v1", "v2", "v3", "v4", "v5", "v6");
+        List<Object> hello = set.randomMembers("randomMembers:key", 10);//该方法count最终会转换成负数 也就意味这返回元素中可能会有重复数据 长度为count的绝对值 如果count<0那么会报错 具体看源码
+        System.out.println("randomMembers:  " + hello);//randomMembers:  [v1, v5, v3, v4, v4, v4, v1, v2, v3, v6]
+        Set<Object> hello1 = set.distinctRandomMembers("hello", 2);//该方法不会转换成负数 不会有重复数据 因为这是set保证的 count必须 >=0 否则报错
+        System.out.println("distinctRandomMembers:  " + hello1);//distinctRandomMembers:  [var1, var2]
 
         /*
         Redis Smembers 命令返回集合中的所有的成员。 不存在的集合 key 被视为空集合。
-
 
         redis 127.0.0.1:6379> SMEMBERS KEY VALUE
 
@@ -118,7 +120,7 @@ public class RedisSetTest extends RedisCommonTest {
         2) "Hello"
          */
         Set<Object> members = set.members("hello");
-        System.out.println(members);
+        System.out.println("members : " + members);
 
         /*
         Redis Sinter 命令返回给定所有给定集合的交集。 不存在的集合 key 被视为空集。 当给定集合当中有一个空集时，结果也为空集(根据集合运算定律)。
@@ -138,10 +140,39 @@ public class RedisSetTest extends RedisCommonTest {
         redis 127.0.0.1:6379> SINTER myset myset2
         1) "hello"
          */
-        set.intersect("hello", "world");
-        List<String> key2 = Lists.newArrayList("var1", "var2", "var3");
-        Set<Object> intersect = set.intersect("hello", key2);
-        System.out.println(intersect);
+        set.add("list1", "var1", "var2", "var3", "var4", "var5");
+        set.add("list2", "var10", "var5");
+        set.add("list3", "var10", "var100", "var1", "var5");
+        set.add("listempty", "var10", "var5");
+        Long listempty = set.remove("listempty", "var10", "var5");//若不传 value 则：  Unknown redis exception; nested exception is java.lang.IllegalArgumentException: Members must not be empty
+        Set<Object> intersect1 = set.intersect("list1", Stream.of("list2").collect(Collectors.toList()));
+        System.out.println("intersect1 after : " + intersect1);
+
+        Set<Object> intersect2 = set.intersect("list2", Stream.of("list3").collect(Collectors.toList()));
+        System.out.println("intersect2 after : " + intersect2);
+
+        Set<Object> intersect3 = set.intersect("list1", Stream.of("list3").collect(Collectors.toList()));
+        System.out.println("intersect3 after : " + intersect3);
+
+        Set<Object> intersect4 = set.intersect("list1", Stream.of("list2", "list3").collect(Collectors.toList()));
+        System.out.println("intersect4 after : " + intersect4);
+
+        Set<Object> intersect5 = set.intersect("list1", Stream.of("list1", "list2", "list3").collect(Collectors.toList()));
+        System.out.println("intersect5 after : " + intersect5);
+
+        //有一个为空集 那么交集必然是空集
+        Set<Object> intersect6 = set.intersect("list1", Stream.of("list1", "list2", "list3", "listempty").collect(Collectors.toList()));
+        System.out.println("intersect6 after : " + intersect6);
+
+        /*
+        上边结果
+        intersect1 after : [var5]
+        intersect2 after : [var5, var10]
+        intersect3 after : [var1, var5]
+        intersect4 after : [var5]
+        intersect5 after : [var5]
+        intersect6 after : []
+         */
 
         /*
 
@@ -165,8 +196,10 @@ public class RedisSetTest extends RedisCommonTest {
         1) "bar"
         2) "world"
          */
-        Long remove = set.remove("hello", "var1", "var2");
-        System.out.println(remove);
+        set.add("remove:key", "var1", "var2", "var3", "var4");
+        Long remove = set.remove("remove:key", "var1", "var2");
+        Set<Object> remove1 = set.members("remove:key");
+        System.out.println("remove1: " + remove1);//remove1: [var4, var3]
 
 
         /*
@@ -196,8 +229,15 @@ public class RedisSetTest extends RedisCommonTest {
         1) "foo"
         2) "bar"
          */
-        Boolean move = set.move("move", "var1", "move:new");
-        System.out.println(move);
+        set.add("move:key","var1","var2","var3","var4");
+        set.add("move:key2","var100","var200","var300","var400");
+        Boolean move = set.move("move:key", "var2", "move:key2");
+        System.out.println("move:key: "+set.members("move:key"));
+        System.out.println("move:key2: "+set.members("move:key2"));
+        /*
+        move:key: [var1, var4, var3]
+        move:key2: [var2, var200, var100, var400, var300]
+         */
 
         /*
         Redis Sadd 命令将一个或多个成员元素加入到集合中，已经存在于集合的成员元素将被忽略。
@@ -217,8 +257,8 @@ public class RedisSetTest extends RedisCommonTest {
         1) "hello"
         2) "foo"
          */
-        Long add = set.add("hello", "var1");
-        System.out.println(add);
+        Long add = set.add("add:key", "var1");
+        System.out.println(set.members("add:key"));
 
         /*
         Redis Sismember 命令判断成员元素是否是集合的成员。
@@ -233,8 +273,11 @@ public class RedisSetTest extends RedisCommonTest {
         redis 127.0.0.1:6379> SISMEMBER myset1 "world"
         (integer) 0
          */
-        Boolean member = set.isMember("hello", "var2");
-        System.out.println(member);
+        set.add("ismember:key","var1","var2","var3","var100");
+        Boolean member = set.isMember("ismember:key", "var2");
+        Boolean member2 = set.isMember("ismember:key", "var99");
+        System.out.println("isMember: "+member);//true
+        System.out.println("isMember2: "+member2);//false
 
         /*
         Redis Sdiffstore 命令将给定集合之间的差集存储在指定的集合中。如果指定的集合 key 已存在，则会被覆盖。
@@ -271,9 +314,13 @@ public class RedisSetTest extends RedisCommonTest {
         2) "var3"
         127.0.0.1:6379>
          */
-
-        Long aLong = set.differenceAndStore("myset:new", "myset01", "myset02");
-        System.out.println(aLong);
+        //取差集并且存储到新的集合中
+        set.add("diff:key1","var1","var2","var3","var4","var199");
+        set.add("diff:key2","var3","var40","var4","var400","var12");
+        Long aLong = set.differenceAndStore("myset:new", "diff:key1", "diff:key2");
+        System.out.println("myset:new: "+set.members("myset:new"));
+        System.out.println("diff:key1: "+set.members("diff:key1"));
+        System.out.println("diff:key2: "+set.members("diff:key2"));
 
         /*
         Redis Sdiff 命令返回给定集合之间的差集。不存在的集合 key 将视为空集。
@@ -338,7 +385,7 @@ public class RedisSetTest extends RedisCommonTest {
         redis 127.0.0.1:6379> SMEMBERS myset
         1) "hello"
          */
-        Long aLong1 = set.intersectAndStore("hello", "hello2","hello3");
+        Long aLong1 = set.intersectAndStore("hello", "hello2", "hello3");
         System.out.println(aLong1);
 
         /*
