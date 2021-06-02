@@ -10,36 +10,13 @@
     </parent>
     <!-- 这里打成jar才可以把resource中的东西打进去 packaging是pom的话只是打的class文件 -->
     <!--    <packaging>jar</packaging>-->
-
-    <artifactId>study-test</artifactId>
+    <artifactId>study-consumer</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>study-test</name>
-    <description>study-test</description>
+    <name>study-consumer</name>
+    <description>study-consumer</description>
 
     <dependencies>
-        <dependency>
-            <groupId>com.xzll</groupId>
-            <artifactId>study-common</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
 
-        <dependency>
-            <groupId>com.xzll</groupId>
-            <artifactId>study-api</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.xzll</groupId>
-            <artifactId>util-spring-boot-starter</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.xzll</groupId>
-            <artifactId>pay-spring-boot-starter</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
 
         <!--nacos配置中心-->
         <dependency>
@@ -64,11 +41,13 @@
             <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
         </dependency>
 
-        <!--加载不到bootstrap文件和这个没关系 -->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.cloud</groupId>-->
-<!--            <artifactId>spring-cloud-context</artifactId>-->
-<!--        </dependency>-->
+        <!--依赖服务提供者的包  因为feignClient在服务提供者中写的了 也可以写到服务消费者那里-->
+        <dependency>
+            <groupId>com.xzll</groupId>
+            <artifactId>study-test</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <!--思考 为毛不加这个依赖 会报websocket相关的错误？-->
     </dependencies>
 
     <build>
@@ -79,7 +58,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <!-- 指定该Main Class为全局的唯一入口 -->
-                    <mainClass>com.xzll.test.StudyTestApplication</mainClass>
+                    <mainClass>com.xzll.consumer.StudyConsumerApplication</mainClass>
                     <layout>ZIP</layout>
                 </configuration>
             </plugin>

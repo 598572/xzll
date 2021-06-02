@@ -1,4 +1,4 @@
-package com.xzll.test;
+package com.xzll.consumer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,20 +9,12 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 @ComponentScan(basePackages = "com.xzll")
-//通过 Spring Cloud 原生注解 @EnableDiscoveryClient 开启服务注册发现功能
 @EnableDiscoveryClient
 @EnableFeignClients
-public class StudyTestApplication {
+public class StudyConsumerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(StudyTestApplication.class, args);
+        SpringApplication.run(StudyConsumerApplication.class, args);
     }
 
-//    @RestController
-//    class EchoController {
-//        @RequestMapping(value = "/echo/{string}", method = RequestMethod.GET)
-//        public String echo(@PathVariable String string) {
-//            return "Hello Nacos Discovery " + string;
-//        }
-//    }
 }
