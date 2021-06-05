@@ -41,6 +41,12 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
+        <!--websocket演示-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+
         <!--nacos配置中心-->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
@@ -65,10 +71,10 @@
         </dependency>
 
         <!--加载不到bootstrap文件和这个没关系 -->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.cloud</groupId>-->
-<!--            <artifactId>spring-cloud-context</artifactId>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.cloud</groupId>-->
+        <!--            <artifactId>spring-cloud-context</artifactId>-->
+        <!--        </dependency>-->
     </dependencies>
 
     <build>
@@ -102,43 +108,5 @@
         </resources>
     </build>
 
-    <profiles>
-        <profile>
-            <id>dev</id>
-            <activation>
-                <!--默认激活dev环境-->
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <!--替换bootstrap.properties中的 ${nacos.serverAddress}变量-->
-                <nacos.serverAddr>127.0.0.1:8848</nacos.serverAddr>
-                <boot.profile>dev</boot.profile>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>test</id>
-            <activation>
-
-            </activation>
-            <properties>
-                <!--模拟test环境-->
-                <!--替换bootstrap.properties中的 ${nacos.serverAddr}变量-->
-                <nacos.serverAddr>127.0.0.1:8849</nacos.serverAddr>
-                <boot.profile>test</boot.profile>
-            </properties>
-        </profile>
-        <profile>
-            <id>prod</id>
-            <activation>
-            </activation>
-            <properties>
-                <!--模拟prod环境-->
-                <!--替换bootstrap.properties中的 ${nacos.serverAddr}变量-->
-                <nacos.serverAddr>127.0.0.1:8850</nacos.serverAddr>
-                <boot.profile>prod</boot.profile>
-            </properties>
-        </profile>
-    </profiles>
 
 </project>

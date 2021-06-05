@@ -28,7 +28,7 @@ springboot和springcloud的对应  https://start.spring.io/actuator/info
 
 ```
 最后解决方式 ： 我发现他居然没把bootstarpt.properties文件打进target目录中去 于是一番查找 最终 定位到 
-<!--    <packaging>jar</packaging>--> 把他去掉 因为这玩意只打class文件 默认是jar打成jar就好了
+<!--    <packaging>pom</packaging>--> 把他去掉 因为这玩意只打class文件 默认是jar打成jar就好了
 ```
 
 ```

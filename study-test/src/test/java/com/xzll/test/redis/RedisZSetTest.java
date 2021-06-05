@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.core.ZSetOperations;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,6 +21,39 @@ public class RedisZSetTest extends RedisCommonTest {
     public void setOperations() {
 
         clearDB();
+
+
+        /**
+         * 证明 ： rediszset add时候是按照分数来排序的 分数大的在后边 index靠后  ，分数小的在前 index靠前 ，即按照分数正序排列
+         */
+        zSet.add("myzset","var1",1);
+        zSet.add("myzset","var2",2);
+        zSet.add("myzset","var3",3);
+        zSet.add("myzset","var4",4);
+        zSet.add("myzset","var5",5);
+        zSet.add("myzset","var6",6);
+        zSet.add("myzset","var7",7);
+        zSet.add("myzset","var8",8);
+        zSet.add("myzset","var9",9);
+        zSet.add("myzset","var10",10);
+        zSet.add("myzset","var11",11);
+
+//        Set<Object> myzset = zSet.range("myzset", 0, -1);
+//        System.out.println("myzset:  "+myzset);
+
+        Set<Object> range222 = zSet.reverseRange("myzset", 5, Integer.MAX_VALUE);
+        System.out.println(range222+"  ========= ");
+//        zSet.removeRange("myzset", 5, Integer.MAX_VALUE);
+//        Long remove1 = zSet.remove("myzset",range222);
+//        Long remove2 = zSet.remove("myzset", "var7");
+        Long myzset = zSet.removeRange("myzset", 0, -4);
+
+
+        Set<Object> myzsetRemoveAfter = zSet.range("myzset", 0, -1);
+        System.out.println("myzsetRemoveAfter: "+myzsetRemoveAfter);
+
+
+
 
         /*
         Redis Zrevrank 命令返回有序集中成员的排名。其中有序集成员按分数值递减(从大到小)排序。
@@ -590,6 +624,9 @@ public class RedisZSetTest extends RedisCommonTest {
          */
         Boolean add = zSet.add("key", "var2", 2);
         System.out.println(add);
+
+
+
 
 
     }
