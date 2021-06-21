@@ -1,0 +1,210 @@
+## Zero Copy I: User-Mode Perspective 零拷贝 用户视角
+> https://www.linuxjournal.com/article/6345 <br>
+> 还有个好文: https://www.cnblogs.com/lsgxeva/p/11619464.html 中文的 也很详细 很清晰 <br>
+
+```
+图片中的几个单词翻译 
+user space 用户空间 没有权限直接操作 资源 必须调用内核空间来完成
+kernel space 内核空间 有权限直接操作资源 
+hard drive 硬件磁盘
+kernel buffer 内核缓存
+user buffer 用户缓存
+protocol engine 协议引擎
+socket buffer 网卡缓存??? 翻译的有点生硬 干脆别翻译了 就是 socket buffer 
+cpu copy是通常说的copy  
+DMA  copy是  （DirectMemoryAccess），直接内存存取 是想当快的
+
+```
+
+## 1传统的IO:
+
+By now almost everyone has heard of so-called zero-copy functionality under Linux, but I often run into people who don't have a full understanding of the subject. Because of this, I decided to write a few articles that dig into the matter a bit deeper, in the hope of unraveling this useful feature. In this article, we take a look at zero copy from a user-mode application point of view, so gory kernel-level details are omitted intentionally.
+
+What Is Zero-Copy?
+To better understand the solution to a problem, we first need to understand the problem itself. Let's look at what is involved in the simple procedure of a network server dæmon serving data stored in a file to a client over the network. Here's some sample code:
+
+到现在为止，几乎每个人都听说过 Linux 下所谓的零拷贝功能，但我经常遇到对这个主题没有完全了解的人。正因为如此，
+我决定写几篇文章更深入地探讨这个问题，希望能解开这个有用的功能。在本文中，我们从用户模式应用程序的角度来看零拷贝，
+因此有意省略了血腥的内核级细节。什么是零拷贝？为了更好地理解问题的解决方案，我们首先需要了解问题本身。
+让我们看看网络服务器守护进程通过网络向客户端提供存储在文件中的数据的简单过程所涉及的内容。这是一些示例代码：
+
+
+
+```
+read(file, tmp_buf, len);
+write(socket, tmp_buf, len);
+```
+
+
+Looks simple enough; you would think there is not much overhead with only those two system calls. In reality, this couldn't be further from the truth. Behind those two calls, the data has been copied at least four times, and almost as many user/kernel context switches have been performed. (Actually this process is much more complicated, but I wanted to keep it simple). To get a better idea of the process involved, take a look at Figure 1. The top side shows context switches, and the bottom side shows copy operations.
+
+看起来很简单；你会认为只有这两个系统调用没有太多开销。实际上，这与事实大相径庭。在这两次调用之后，数据至少被复制了四次，并且执行了几乎同样多的用户内核上下文切换。 （实际上这个过程要复杂得多，但我想保持简单）。要更好地了解所涉及的过程，请查看图 1。顶部显示上下文切换，底部显示复制操作。
+
+
+**图一:** <br><br> 
+![](./传统IO.png)
+
+图 1. 在两个示例系统调用中复制 第一步：读取系统调用导致上下文从用户模式切换到内核模式。 <br>
+第一个副本由 DMA 引擎执行，它从磁盘读取文件内容并将它们存储到内核地址空间缓冲区中。 <br>
+第二步：数据从内核缓冲区复制到用户缓冲区，read系统调用返回。调用返回导致上下文从内核切换回用户模式。现在数据存储在用户地址空间缓冲区中，它可以再次开始向下传输。<br>
+第三步：write 系统调用导致上下文从用户模式切换到内核模式。执行第三次复制以将数据再次放入内核地址空间缓冲区。不过，这一次，数据被放入不同的缓冲区中，该缓冲区专门与套接字相关联。<br>
+第四步：write 系统调用返回，创建我们的第四个上下文切换。独立和异步地，当 DMA 引擎将数据从内核缓冲区传递到协议引擎时，会发生第四次复制。您可能会问自己，“独立和异步是什么意思？不是在调用返回之前就传输了数据吗？”调用返回，实际上并不能保证传输；<br>
+* 最后:<br>
+它甚至不能保证传输的开始。它只是意味着以太网驱动程序在其队列中有空闲描述符并且已经接受了我们的数据进行传输。在我们之前可能有许多数据包排队。除非驱动程序硬件实现优先级环或队列，否则数据以先进先出的方式传输。 （图 1 中的分叉 DMA 副本说明了最后一个副本可以延迟的事实）。<br>
+如您所见，大量数据重复并不是真正必要的。可以消除一些重复以减少开销并提高性能。作为驱动程序开发人员，我使用具有一些非常高级功能的硬件。一些硬件可以完全绕过主内存，直接将数据传输到另一个设备。此功能消除了系统内存中的副本，这是一件好事，但并非所有硬件都支持它。<br>
+还有一个问题是磁盘中的数据必须为网络重新打包，这会带来一些复杂性。为了消除开销，我们可以从消除内核和用户缓冲区之间的一些复制开始。消除副本的一种方法是跳过调用 read ，用mmap。例如：<br>
+
+```
+tmp_buf = mmap(file, len);
+write(socket, tmp_buf, len);
+```
+## 2 mmap方式:
+
+To get a better idea of the process involved, take a look at Figure 2. Context switches remain the same.<br>
+要更好地了解所涉及的过程，请查看图 2。上下文切换保持不变。
+
+**图2**<br>
+![](./mmap.png)
+
+Figure 2. Calling mmap
+
+Step one: the mmap system call causes the file contents to be copied into a kernel buffer by the DMA engine. The buffer is shared then with the user process, without any copy being performed between the kernel and user memory spaces.
+
+Step two: the write system call causes the kernel to copy the data from the original kernel buffers into the kernel buffers associated with sockets.
+
+Step three: the third copy happens as the DMA engine passes the data from the kernel socket buffers to the protocol engine.
+
+By using mmap instead of read, we've cut in half the amount of data the kernel has to copy. This yields reasonably good results when a lot of data is being transmitted. However, this improvement doesn't come without a price; there are hidden pitfalls when using the mmap+write method. You will fall into one of them when you memory map a file and then call write while another process truncates the same file. Your write system call will be interrupted by the bus error signal SIGBUS, because you performed a bad memory access. The default behavior for that signal is to kill the process and dump core—not the most desirable operation for a network server. There are two ways to get around this problem.
+
+The first way is to install a signal handler for the SIGBUS signal, and then simply call return in the handler. By doing this the write system call returns with the number of bytes it wrote before it got interrupted and the errno set to success. Let me point out that this would be a bad solution, one that treats the symptoms and not the cause of the problem. Because SIGBUS signals that something has gone seriously wrong with the process, I would discourage using this as a solution.
+
+The second solution involves file leasing (which is called “opportunistic locking” in Microsoft Windows) from the kernel. This is the correct way to fix this problem. By using leasing on the file descriptor, you take a lease with the kernel on a particular file. You then can request a read/write lease from the kernel. When another process tries to truncate the file you are transmitting, the kernel sends you a real-time signal, the RT_SIGNAL_LEASE signal. It tells you the kernel is breaking your write or read lease on that file. Your write call is interrupted before your program accesses an invalid address and gets killed by the SIGBUS signal. The return value of the write call is the number of bytes written before the interruption, and the errno will be set to success. Here is some sample code that shows how to get a lease from the kernel:
+
+
+图 2. 调用 mmap 第一步：mmap 系统调用使 DMA 引擎将文件内容复制到内核缓冲区中。然后该缓冲区与用户进程共享，而不会在内核和用户内存空间之间执行任何复制。<br>
+第二步：write 系统调用使内核将数据从原始内核缓冲区复制到与套接字关联的内核缓冲区中。<br>
+第三步：当 DMA 引擎将数据从内核套接字缓冲区传递到协议引擎时，发生第三次复制。通过使用 mmap 而不是 read，我们将内核必须复制的数据量减少了一半。
+* 最后；<br>
+当传输大量数据时，这会产生相当好的结果。然而，这种改进并非没有代价。使用 mmap+write 方法时存在隐藏的陷阱。
+当您内存映射一个文件然后调用 write 而另一个进程截断同一个文件时，您将陷入其中之一。您的 write 系统调用将被总线错误信号 SIGBUS 中断，因为您执行了错误的内存访问。
+该信号的默认行为是终止进程并转储核心——这不是网络服务器最理想的操作。有两种方法可以解决这个问题。第一种方法是为 SIGBUS 信号安装一个信号处理程序，然后在处理程序中简单地调用 return。
+通过这样做， write 系统调用将返回它在被中断之前写入的字节数，并将 errno 设置为成功。让我指出，这将是一个糟糕的解决方案，它只针对症状而不是问题的根源。
+因为 SIGBUS 表示该过程出现了严重错误，所以我不鼓励将其用作解决方案。第二种解决方案涉及从内核租用文件（在 Microsoft Windows 中称为“机会锁定”）。
+这是解决此问题的正确方法。通过在文件描述符上使用租用，您可以与内核对特定文件进行租用。然后，您可以从内核请求读写租约。当另一个进程试图截断您正在传输的文件时，内核会向您发送一个实时信号 RT_SIGNAL_LEASE 信号。它告诉您内核正在破坏您对该文件的写入或读取租约。
+在您的程序访问无效地址并被 SIGBUS 信号杀死之前，您的写入调用被中断。 write调用的返回值是中断前写入的字节数，errno会设置为success。下面是一些示例代码，展示了如何从内核获取租约：
+
+```
+if(fcntl(fd, F_SETSIG, RT_SIGNAL_LEASE) == -1) {
+    perror("kernel lease set signal");
+    return -1;
+}
+/* l_type can be F_RDLCK F_WRLCK */
+if(fcntl(fd, F_SETLEASE, l_type)){
+    perror("kernel lease set type");
+    return -1;
+}
+```
+
+You should get your lease before mmaping the file, and break your lease after you are done. This is achieved by calling fcntl F_SETLEASE with the lease type of F_UNLCK.
+
+Sendfile
+In kernel version 2.1, the sendfile system call was introduced to simplify the transmission of data over the network and between two local files. Introduction of sendfile not only reduces data copying, it also reduces context switches. Use it like this:
+
+您应该在映射文件之前获得租约，并在完成后解除租约。这是通过使用 F_UNLCK 的租用类型调用 f​​cntl F_SETLEASE 来实现的。 
+Sendfile 在内核版本 2.1 中，引入了 sendfile 系统调用以简化网络上和两个本地文件之间的数据传输。 
+sendfile 的引入不仅减少了数据复制，还减少了上下文切换。像这样使用它：
+
+```
+sendfile(socket, file, len);
+```
+
+## 3 sendfile方式:
+
+To get a better idea of the process involved, take a look at Figure 3.
+要更好地了解所涉及的过程，请查看图 3。
+
+**图3**<br>
+![](sendfile---从linux内核版本2.1开始引入的.png)
+
+Figure 3. Replacing Read and Write with Sendfile
+
+Step one: the sendfile system call causes the file contents to be copied into a kernel buffer by the DMA engine. Then the data is copied by the kernel into the kernel buffer associated with sockets.
+
+Step two: the third copy happens as the DMA engine passes the data from the kernel socket buffers to the protocol engine.
+
+You are probably wondering what happens if another process truncates the file we are transmitting with the sendfile system call. If we don't register any signal handlers, the sendfile call simply returns with the number of bytes it transferred before it got interrupted, and the errno will be set to success.
+
+If we get a lease from the kernel on the file before we call sendfile, however, the behavior and the return status are exactly the same. We also get the RT_SIGNAL_LEASE signal before the sendfile call returns.
+
+So far, we have been able to avoid having the kernel make several copies, but we are still left with one copy. Can that be avoided too? Absolutely, with a little help from the hardware. To eliminate all the data duplication done by the kernel, we need a network interface that supports gather operations. This simply means that data awaiting transmission doesn't need to be in consecutive memory; it can be scattered through various memory locations. In kernel version 2.4, the socket buffer descriptor was modified to accommodate those requirements—what is known as zero copy under Linux. This approach not only reduces multiple context switches, it also eliminates data duplication done by the processor. For user-level applications nothing has changed, so the code still looks like this:
+
+
+图 3. 用 Sendfile 替换 Read 和 Write 
+第一步：sendfile 系统调用使文件内容被 DMA 引擎复制到内核缓冲区中。然后内核将数据复制到与套接字关联的内核缓冲区中。<br>
+第二步：当 DMA 引擎将数据从内核套接字缓冲区传递到协议引擎时，发生第三次复制。您可能想知道如果另一个进程截断了我们使用 sendfile 系统调用传输的文件会发生什么。<br>
+* **最后** <br>
+如果我们不注册任何信号处理程序，sendfile 调用只会返回它在中断之前传输的字节数，并且 errno 将设置为成功。
+但是，如果我们在调用 sendfile 之前从内核获取文件的租约，则行为和返回状态完全相同。我们还在 sendfile 调用返回之前获得了 RT_SIGNAL_LEASE 信号。
+到目前为止，我们已经能够避免内核制作多个副本，但我们仍然只剩下一个副本。这也能避免吗？当然，在硬件的帮助下。
+为了消除内核所做的所有数据重复，我们需要一个支持收集操作的网络接口。这只是意味着等待传输的数据不需要在连续的内存中；
+它可以分散在不同的内存位置。在内核版本 2.4 中，对套接字缓冲区描述符进行了修改以适应这些要求——这在 Linux 下称为零拷贝。这
+种方法不仅减少了多次上下文切换，还消除了处理器所做的数据重复。对于用户级应用程序没有任何改变，所以代码仍然是这样的：
+```
+sendfile(socket, file, len);
+```
+*****
+
+## 4 gather Copy
+
+To get a better idea of the process involved, take a look at Figure 4.
+要更好地了解所涉及的过程，请查看图 4。
+
+![](sendfile优化后的gatherCopy---从linux内核版本2.4开始引入.png)
+
+Figure 4. Hardware that supports gather can assemble data from multiple memory locations, eliminating another copy.
+
+Step one: the sendfile system call causes the file contents to be copied into a kernel buffer by the DMA engine.
+
+Step two: no data is copied into the socket buffer. Instead, only descriptors with information about the whereabouts and length of the data are appended to the socket buffer. The DMA engine passes data directly from the kernel buffer to the protocol engine, thus eliminating the remaining final copy.
+
+Because data still is actually copied from the disk to the memory and from the memory to the wire, some might argue this is not a true zero copy. This is zero copy from the operating system standpoint, though, because the data is not duplicated between kernel buffers. When using zero copy, other performance benefits can be had besides copy avoidance, such as fewer context switches, less CPU data cache pollution and no CPU checksum calculations.
+
+Now that we know what zero copy is, let's put theory into practice and write some code. You can download the full source code from www.xalien.org/articles/source/sfl-src.tgz. To unpack the source code, type tar -zxvf sfl-src.tgz at the prompt. To compile the code and create the random data file data.bin, run make.
+
+Looking at the code starting with header files:
+
+
+图 4. 支持收集的硬件可以从多个内存位置组装数据，消除另一个副本。<br>
+第一步：sendfile 系统调用使文件内容被 DMA 引擎复制到内核缓冲区中。 <br>
+第二步：没有数据被复制到套接字缓冲区中。取而代之的是，只有具有有关数据的位置和长度的信息的描述符才会附加到套接字缓冲区。 <br>
+DMA 引擎将数据直接从内核缓冲区传递到协议引擎，从而消除了剩余的最终副本。由于数据实际上仍然是从磁盘复制到内存以及从内存复制到线路，因此有些人可能会争辩说这不是真正的零复制。
+但是，从操作系统的角度来看，这是零拷贝，因为数据在内核缓冲区之间没有重复。使用零复制时，除了避免复制之外，还可以获得其他性能优势，例如更少的上下文切换、更少的 CPU 数据缓存污染和没有 CPU 校验和计算。
+现在我们知道零拷贝是什么，让我们将理论付诸实践并编写一些代码。您可以从 www.xalien.orgarticlessourcesfl-src.tgz 下载完整的源代码。
+要解压源代码，请在提示符下键入 tar -zxvf sfl-src.tgz。
+要编译代码并创建随机数据文件 data.bin，请运行 make。查看以头文件开头的代码：
+
+*****
+
+...略过了一些东西 具体看原文 
+> >  https://www.linuxjournal.com/article/6345
+
+前两个参数是文件描述符。第三个参数指向一个偏移量，sendfile 应该从该偏移量开始发送数据。
+第四个参数是我们要传输的字节数。为了使发送文件传输使用零拷贝功能，您需要来自网卡的内存收集操作支持。
+您还需要实现校验和的协议的校验和功能，例如 TCP 或 UDP。如果您的 NIC 已过时并且不支持这些功能，您仍然可以使用 sendfile 传输文件。
+不同之处在于内核会在传输缓冲区之前合并缓冲区。可移植性问题 通常，sendfile 系统调用的问题之一是缺乏标准实现，就像 open 系统调用一样。 
+Linux、Solaris 或 HP-UX 中的 Sendfile 实现完全不同。这给希望在其网络数据传输代码中使用零拷贝的开发人员带来了问题。
+实现差异之一是 Linux 提供了一个 sendfile，它定义了一个接口，用于在两个文件描述符（file-to-file）和（file-to-socket）之间传输数据。
+另一方面，HP-UX 和 Solaris 只能用于文件到套接字提交。第二个区别是 Linux 没有实现向量传输。 
+Solaris sendfile 和 HP-UX sendfile 具有额外的参数，可消除与在传输数据前附加标头相关的开销。
+展望未来 Linux 下零拷贝的实现远未完成，在不久的将来可能会发生变化。应该添加更多功能。
+例如，sendfile 调用不支持向量传输，Samba 和 Apache 等服务器必须使用多个设置了 TCP_CORK 标志的 sendfile 调用。
+该标志告诉系统在下一次 sendfile 调用中将有更多数据通过。 TCP_CORK 也与 TCP_NODELAY 不兼容，当我们想要为数据添加或附加标头时使用。
+这是一个完美的例子，其中向量调用将消除当前实现要求的多个发送文件调用和延迟的需要。当前发送文件中一个相当令人不快的限制是它不能在传输大于 2GB 的文件时使用。
+这种大小的文件在今天并不少见，而且在输出时必须复制所有这些数据是相当令人失望的。因为在这种情况下 sendfile 和 mmap 方法都不可用，所以 sendfile64 在未来的内核版本中会非常方便。
+结论 尽管有一些缺点，零拷贝发送文件是一个有用的特性，我希望你已经发现这篇文章足以让你开始在你的程序中使用它。
+如果您对这个主题有更深入的兴趣，请留意我的第二篇文章，标题为“零拷贝 II：内核视角”，我将在其中深入探讨零拷贝的内核内部结构。
+
+end
+
+
+
