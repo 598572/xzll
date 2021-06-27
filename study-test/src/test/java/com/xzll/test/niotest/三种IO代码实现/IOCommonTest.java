@@ -3,12 +3,6 @@ package com.xzll.test.niotest.三种IO代码实现;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
-
 /**
  * @Auther: Huangzhuangzhuang
  * @Date: 2021/6/20 08:00
@@ -19,7 +13,7 @@ import java.util.UUID;
  * <p>
  * 2.测试传统方式 sendfile mmap 方式的copy性能
  * <p>
- * 启动  方法即可
+ * 启动 testCopy() 方法即可
  */
 public class IOCommonTest {
 

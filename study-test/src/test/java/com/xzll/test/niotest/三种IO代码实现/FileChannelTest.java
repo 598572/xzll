@@ -3,8 +3,7 @@ package com.xzll.test.niotest.三种IO代码实现;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -99,10 +98,17 @@ public class FileChannelTest extends IOCommonTest {
     @Test
     public void transferFrom() throws Exception {
         long l = System.currentTimeMillis();
-        try (FileChannel fromChannel = new RandomAccessFile(
+        /*
+        使用 RandomAccessFile创建的话 是随机读写 这个有时比较慢
+        FileChannel fromChannel = new RandomAccessFile(
                 SOURCE_FILE, "rw").getChannel();
              FileChannel toChannel = new RandomAccessFile(
-                     TARGET_FILE, "rw").getChannel()) {
+                     TARGET_FILE, "rw").getChannel()
+         */
+        try (FileChannel fromChannel = new FileInputStream(
+                SOURCE_FILE).getChannel();
+             FileChannel toChannel = new FileOutputStream(
+                     TARGET_FILE).getChannel()) {
             long position = 0L;
             long offset = fromChannel.size();
             System.out.println("拷贝前: 文件大小 : " + toChannel.size() );
@@ -136,6 +142,41 @@ public class FileChannelTest extends IOCommonTest {
         byte[] bytes = new byte[buffer.limit()];
         buffer.get(bytes);
         return new String(bytes);
+    }
+
+
+    /**
+     * 使用FileChannel进行拷贝文件 底层使用了 零拷贝技术  复制的  org.apache.rocketmq.common.utils.IOTinyUtils 里边的copyFile方法
+     *
+     * @param source
+     * @param target
+     * @throws IOException
+     */
+    public static void copyFile4ZeroCopy(String source, String target) throws IOException {
+        File sf = new File(source);
+        if (!sf.exists()) {
+            throw new IllegalArgumentException("source file does not exist.");
+        }
+        File tf = new File(target);
+        tf.getParentFile().mkdirs();
+        if (!tf.exists() && !tf.createNewFile()) {
+            throw new RuntimeException("failed to create target file.");
+        }
+
+        FileChannel sc = null;
+        FileChannel tc = null;
+        try {
+            tc = new FileOutputStream(tf).getChannel();
+            sc = new FileInputStream(sf).getChannel();
+            sc.transferTo(0, sc.size(), tc);
+        } finally {
+            if (null != sc) {
+                sc.close();
+            }
+            if (null != tc) {
+                tc.close();
+            }
+        }
     }
 
 }
