@@ -1,0 +1,14 @@
+server:
+  port: 9090
+security:
+  oauth2:
+    # 资源服务器配置，对应 OAuth2ClientProperties 类 !!! 在这里配置资源服务器的client-id和 client-secret 授权服务器将会进行校验
+    client:
+      client-id: clientapp
+      client-secret: 888888
+    # 授权服务器配置，对应 ResourceServerProperties 类 !!! 在这里配置授权服务器检测token的接口url
+    resource:
+      token-info-uri: http://127.0.0.1:8080/oauth/check_token
+    # !!!在这里配置授权服务器获得token的url
+    access-token-uri: http://127.0.0.1:8080/oauth/token
+

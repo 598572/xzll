@@ -1,0 +1,571 @@
+{
+	"info": {
+		"_postman_id": "04dcaf88-05f5-40bf-ad7a-0e1f466b43ee",
+		"name": "登录认证演示",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "登录认证演示---简单模式和删除token的代码不演示了",
+			"item": [
+				{
+					"name": "登录认证演示---基于密码模式",
+					"item": [
+						{
+							"name": "3.请求资源服务器---使用用户名和密码登录---资源服务器去请求认证服务器",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "username",
+										"value": "user",
+										"type": "text",
+										"disabled": true
+									},
+									{
+										"key": "password",
+										"value": "user",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "username",
+											"value": "黄壮壮",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "123456",
+											"type": "text"
+										}
+									],
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://127.0.0.1:9090/login",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "9090",
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4.请求资源服务器---的某个需要认证的接口",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "cc6524b1-4296-4c32-9396-cdc53d8de30b",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "127.0.0.1:9090/api/example/hello",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "9090",
+									"path": [
+										"api",
+										"example",
+										"hello"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "1.请求认证服务器---根据传入的clientid和sercet以及用户名和密码获取token",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "888888",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "clientapp",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "username",
+											"value": "黄壮壮",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "123456",
+											"type": "text"
+										},
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										}
+									],
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/oauth/token",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"oauth",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2.请求认证服务器---验证获取到的token是否可用",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "888888",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "clientapp",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "token",
+											"value": "cc6524b1-4296-4c32-9396-cdc53d8de30b",
+											"type": "text"
+										}
+									],
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/oauth/check_token",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"oauth",
+										"check_token"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "登录认证演示---基于授权码模式",
+					"item": [
+						{
+							"name": "请求认证服务器-根据传入的clientid和sercet以及授权码获取token",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "112233",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "clientapp",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "username",
+										"value": "user",
+										"type": "text"
+									},
+									{
+										"key": "password",
+										"value": "user",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "code",
+											"value": "DYkByT",
+											"description": "授权码",
+											"type": "text"
+										},
+										{
+											"key": "redirect_uri",
+											"value": "http://127.0.0.1:9090/callback",
+											"description": "访问资源服务器",
+											"type": "text"
+										},
+										{
+											"key": "grant_type",
+											"value": "authorization_code",
+											"description": "授权码方式",
+											"type": "text"
+										}
+									],
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/oauth/token",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"oauth",
+										"token"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "登录认证演示---基于客户端模式",
+					"item": [
+						{
+							"name": "1.请求认证服务器---根据传入的clientid和sercet获取token",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "888888",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "clientapp",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "client_credentials",
+											"description": "授权码方式",
+											"type": "text"
+										}
+									],
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/oauth/token",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"oauth",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2.请求资源服务器---的某个需要认证的接口",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 04db4ea0-a639-424f-9060-d0338f975700",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "127.0.0.1:9090/api/example/hello",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "9090",
+									"path": [
+										"api",
+										"example",
+										"hello"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3.请求资源服务器---使用客户端模式进行授权，获得访问令牌",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "127.0.0.1:9090/client-login",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "9090",
+									"path": [
+										"client-login"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "登录认证演示---获取refreshToken用来刷新accessToken---基于用户密码模式---其他模式一个道理就不演示了",
+					"item": [
+						{
+							"name": "1.请求认证服务器---根据传入的clientid和sercet获取token",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "888888",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "clientapp",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"description": "授权码方式",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "黄壮壮",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "123456",
+											"type": "text"
+										}
+									],
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/oauth/token",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"oauth",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "1.请求认证服务器---根据传入的clientid和sercet获取token Copy",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "888888",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "clientapp",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"description": "授权码方式",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "黄壮壮",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "123456",
+											"type": "text"
+										}
+									],
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/oauth/token",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"oauth",
+										"token"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}

@@ -5,10 +5,14 @@ import com.xzll.test.util.DeflaterUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.UUID;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.InflaterInputStream;
 
 /**
  * @Auther: Huangzhuangzhuang
@@ -17,7 +21,6 @@ import java.util.UUID;
  */
 @Slf4j
 public class StrZipUnZip extends StudyTestApplicationTest {
-
 
 
     @Test
@@ -51,6 +54,86 @@ public class StrZipUnZip extends StudyTestApplicationTest {
         log.info("原长度与解压后长度一样吗:{}", str.length() == resultWithDeflater.length());
         log.info("-------------使用 Deflater算法测试 结束 用时:{} ms------------- 压缩率:{} ", System.currentTimeMillis() - l2, df.format((float) zipStringWithDeflater.length() / str.length()));
 
+    }
+
+    /**
+     * rocketmq 压缩消息的实现 在UtilAll类中
+     *
+     * @param src
+     * @param level
+     * @return
+     * @throws IOException
+     */
+    public static byte[] compress(final byte[] src, final int level) throws IOException {
+        byte[] result = src;
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(src.length);
+        java.util.zip.Deflater defeater = new java.util.zip.Deflater(level);
+        DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(byteArrayOutputStream, defeater);
+        try {
+            deflaterOutputStream.write(src);
+            deflaterOutputStream.finish();
+            deflaterOutputStream.close();
+            result = byteArrayOutputStream.toByteArray();
+        } catch (IOException e) {
+            defeater.end();
+            throw e;
+        } finally {
+            try {
+                byteArrayOutputStream.close();
+            } catch (IOException ignored) {
+            }
+
+            defeater.end();
+        }
+
+        return result;
+    }
+
+    /**
+     * rocketMQ解压缩实现
+     *
+     * @param src
+     * @return
+     * @throws IOException
+     */
+    public static byte[] uncompress(final byte[] src) throws IOException {
+        byte[] result = src;
+        byte[] uncompressData = new byte[src.length];
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(src);
+        InflaterInputStream inflaterInputStream = new InflaterInputStream(byteArrayInputStream);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(src.length);
+
+        try {
+            while (true) {
+                int len = inflaterInputStream.read(uncompressData, 0, uncompressData.length);
+                if (len <= 0) {
+                    break;
+                }
+                byteArrayOutputStream.write(uncompressData, 0, len);
+            }
+            byteArrayOutputStream.flush();
+            result = byteArrayOutputStream.toByteArray();
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            try {
+                byteArrayInputStream.close();
+            } catch (IOException e) {
+                log.error("Failed to close the stream", e);
+            }
+            try {
+                inflaterInputStream.close();
+            } catch (IOException e) {
+                log.error("Failed to close the stream", e);
+            }
+            try {
+                byteArrayOutputStream.close();
+            } catch (IOException e) {
+                log.error("Failed to close the stream", e);
+            }
+        }
+
+        return result;
     }
 
 

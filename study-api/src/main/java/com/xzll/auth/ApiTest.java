@@ -1,4 +1,4 @@
-package com.xzll.api;
+package com.xzll.auth;
 
 import lombok.Data;
 
