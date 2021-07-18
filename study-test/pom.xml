@@ -77,12 +77,30 @@
             <version>1.4</version>
         </dependency>
 
+<!--        <dependency>-->
+<!--            <groupId>org.junit.jupiter</groupId>-->
+<!--            <artifactId>junit-jupiter-engine</artifactId>-->
+<!--            <version>5.5.2</version>-->
+<!--&lt;!&ndash;            <scope>test</scope>&ndash;&gt;-->
+<!--        </dependency>-->
+
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.5.2</version>
-            <scope>test</scope>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>3.16.0</version>
         </dependency>
+
+
+<!--        <dependency>-->
+<!--            <groupId>commons-configuration</groupId>-->
+<!--            <artifactId>commons-configuration</artifactId>-->
+<!--            <version>1.9</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.commons</groupId>-->
+<!--            <artifactId>commons-lang</artifactId>-->
+<!--            <version>2.6</version>-->
+<!--        </dependency>-->
 
         <!--加载不到bootstrap文件和这个没关系 -->
         <!--        <dependency>-->
@@ -117,6 +135,7 @@
                     <include>**/*.xml</include>
                     <include>**/*.json</include>
                     <include>**/*.pem</include>
+<!--                    <include>**/*.jks</include>-->
                 </includes>
             </resource>
         </resources>

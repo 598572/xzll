@@ -1,0 +1,36 @@
+
+Netty core functions and thread model
+Netty的初步探索
+NIO的类库和API复杂，使用麻烦：需要熟悉Selector、ServerSocketChannel、SocketChannel、ByteBuffer等，开发的工作量和难度非常大：比如客户端面临断线重连，网络flash、心跳处理、半包读写、网络拥塞和异常流处理等。
+Netty封装了JDK的NIO API，解决了上述问题。而netty具有高性能、更高吞吐量、更低延迟、减少资源消耗、最小化不必要的内存复制等优点。 Netty 现在使用 4.x，而 5.x 已过时。 Netty 4.x 需要 JDK 6 或更高版本
+
+
+Netty 的使用场景：
+1）互联网行业：分布式系统中，节点之间需要进行远程服务调用，因此需要一个高性能的RPC框架。
+Netty 作为一个异步的高性能通信框架，经常被这些 RPC 框架用作基本的通信组件。典型应用如下：阿里巴巴分布式服务框架Dubbo的RPC框架使用Dubbo协议进行节点间通信，
+Dubbo协议默认使用Netty作为基础通信组件来实现。流程节点之间的内部通信。 Rocketmq 的底层也使用 Netty 作为基本的通信组件。
+2）游戏行业：无论是手游服务器还是大型网络游戏，Java语言的应用越来越广泛。 Netty 作为高性能的基础通信组件，提供了 TCPUDP 和 HTTP 协议栈。
+3）大数据领域：经典Hadoop的高性能通信和序列化组件Avro的RPC框架默认采用netty进行跨界点通信，其Netty Service基于netty框架的二次封装实现。
+与netty相关的开源项目：https:netty.iowikirelated-projects.html
+
+netty线程模型
+
+您可以了解《Java 中的可扩展 IO》一文中提到的一些 IO 处理模式。 Netty 的线程模型如下图所示：
+
+
+[netty basic to entry] 2. Netty core functions and thread model
+Preliminary exploration of Netty
+NIO's class library and API are complex and troublesome to use: you need to be familiar with Selector, ServerSocketChannel, SocketChannel, ByteBuffer, etc.
+The workload and difficulty of development are very large: for example, the client is faced with disconnection and reconnection, network flash, heartbeat processing, half packet read-write, network congestion and abnormal flow processing, etc.
+Netty encapsulates the NIO API of JDK and solves the above problems. And netty has the advantages of high performance, higher throughput, lower latency, reduced resource consumption, and minimized unnecessary memory replication.
+Netty is now using 4.x, and 5.x is obsolete. Netty 4.x requires JDK 6 or above
+
+Usage scenarios of Netty:
+1) Internet industry: in a distributed system, remote service calls are needed between nodes, so a high-performance RPC framework is essential. As an asynchronous and high-performance communication framework, Netty is often used as a basic communication component by these RPC frameworks. Typical applications are as follows: the RPC framework of Alibaba distributed service framework Dubbo uses the Dubbo protocol for inter node communication, and the Dubbo protocol uses Netty as the basic communication component by default for implementation. Internal communication between process nodes. The bottom layer of Rocketmq also uses Netty as the basic communication component.
+2) Game industry: whether it is a mobile game server or a large-scale online game, Java language has been more and more widely used. As a high-performance basic communication component, Netty provides TCP/UDP and HTTP protocol stacks.
+3) Big data field: Classic Hadoop's high-performance communication and serialization component Avro's RPC framework adopts netty for cross-border point communication by default, and its Netty Service is implemented based on the second encapsulation of netty framework. Open source projects related to netty: https://netty.io/wiki/related-projects.html
+
+Netty thread model
+You can understand some IO processing modes mentioned in the article "Scalable IO in Java". The thread model of Netty is shown as follows:
+
+

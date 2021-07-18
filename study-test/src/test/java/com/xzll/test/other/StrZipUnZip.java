@@ -20,7 +20,7 @@ import java.util.zip.InflaterInputStream;
  * @Description:
  */
 @Slf4j
-public class StrZipUnZip extends StudyTestApplicationTest {
+public class StrZipUnZip {
 
 
     @Test

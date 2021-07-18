@@ -3,6 +3,12 @@ package com.xzll.test.config;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+import org.redisson.config.SingleServerConfig;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +33,15 @@ import java.net.UnknownHostException;
  */
 @Configuration
 public class RedisConfig {
+
+    @Value("${spring.redis.host}")
+    private String host;
+
+    @Value("${spring.redis.password}")
+    private String password;
+
+    @Value("${spring.redis.database}")
+    private String database;
 
     public RedisConfig() {
     }
@@ -74,6 +89,26 @@ public class RedisConfig {
         redisTemplate.setHashValueSerializer(jackson2JsonRedisSerializer);
         redisTemplate.afterPropertiesSet();
         return redisTemplate;
+    }
+
+    @Bean
+    public RedissonClient redissonClient() {
+        Config config = new Config();
+
+        // 注意 该参数用于异步定时线程(实际是timer)隔多久进行锁的续期。默认就是30/3=10秒，
+        // 在这里可以修改默认值，注意:此参数一定是小于锁的租约时长的
+        config.setLockWatchdogTimeout(10000L);
+
+        //指定redis服务器类型 比如哨兵，单点，集群，主从，复制等等，这里使用单点进行演示
+        SingleServerConfig singleServerConfig = config.useSingleServer();
+        singleServerConfig.setAddress("redis://"+host+":6379");
+        singleServerConfig.setDatabase(Integer.valueOf(database));
+
+        if (StringUtils.isNotBlank(password)) {
+            singleServerConfig.setPassword(password);
+        }
+        RedissonClient redissonClient = Redisson.create(config);
+        return redissonClient;
     }
 
 }
