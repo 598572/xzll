@@ -9,9 +9,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 /**
  * study项目的认证服务器，多为gateway调用
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.xzll")
 @EnableDiscoveryClient
-@EnableFeignClients
+@EnableFeignClients(basePackages = "com.xzll")
 public class AuthorizationServerApplication {
 
     public static void main(String[] args) {

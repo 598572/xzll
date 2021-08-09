@@ -44,7 +44,7 @@
         <!--依赖服务提供者的包  因为feignClient在服务提供者中写的了 也可以写到服务消费者那里-->
         <dependency>
             <groupId>com.xzll</groupId>
-            <artifactId>study-test</artifactId>
+            <artifactId>study-admin-service</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <!--思考 为毛不加这个依赖 会报websocket相关的错误？-->

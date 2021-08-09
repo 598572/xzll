@@ -6,9 +6,9 @@ import java.util.Objects;
 
 
 public enum OAuthClientEnum {
-    CLIENT("study-client", "客户端"),
-    ADMIN("study-admin", "系统管理端"),
-    WEAPP("study-weapp", "微信小程序端"),
+    CLIENT("xzll-client", "客户端"),
+    ADMIN("xzll-admin", "系统管理端"),
+    WEAPP("xzll-weapp", "微信小程序端"),
     UNKNOWN("unknown", "未知");
 
 

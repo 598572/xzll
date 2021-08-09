@@ -16,6 +16,11 @@ public class ClientDetailsServiceImpl implements ClientDetailsService {
 //    @Autowired
 //    private OAuthClientFeignClient oAuthClientFeignClient;
 
+	/**
+	 * 查询客户端id和secret去数据库  与前端传过来的做对比
+	 * @param clientId
+	 * @return
+	 */
     @Override
     @SneakyThrows
     public ClientDetails loadClientByClientId(String clientId) {
@@ -32,6 +37,10 @@ public class ClientDetailsServiceImpl implements ClientDetailsService {
 //                        client.getWebServerRedirectUri());
 //                clientDetails.setClientSecret(PasswordEncoderTypeEnum.NOOP.getPrefix() + client.getClientSecret());
             BaseClientDetails baseClientDetails = new BaseClientDetails();
+            baseClientDetails.setClientId("123456");
+            baseClientDetails.setClientSecret("hzz");
+
+
             return baseClientDetails;
 //            } else {
 //                throw new NoSuchClientException("No client with requested id: " + clientId);

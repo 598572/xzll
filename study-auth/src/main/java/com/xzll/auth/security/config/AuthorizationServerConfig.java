@@ -1,14 +1,13 @@
 package com.xzll.auth.security.config;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.xzll.auth.entity.OAuthUserDetails;
+import com.xzll.auth.entity.UserDetailsWapper;
 import com.xzll.auth.security.service.ClientDetailsServiceImpl;
-import com.xzll.auth.security.service.UserDetailsServiceImpl;
+import com.xzll.auth.security.service.BaseUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -18,16 +17,11 @@ import org.springframework.security.oauth2.config.annotation.configurers.ClientD
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
-import org.springframework.security.oauth2.provider.ClientDetailsService;
-import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.io.InputStream;
 import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,22 +39,22 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     private AuthenticationManager authenticationManager;
     //用户信息
     @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+    private BaseUserDetailsService userDetailsService;
     //客户端信息 一般指资源服务器，个人理解
     @Autowired
     private ClientDetailsServiceImpl clientDetailsService;
-    @Autowired
-    private DataSource dataSource;
+//    @Autowired
+//    private DataSource dataSource;
 
     /**
      * 使用数据源实例化 jdbcClientDetailsService bean
      *
      * @return
      */
-    @Bean("jdbcClientDetailsService")
-    public ClientDetailsService clientDetailsService() {
-        return new JdbcClientDetailsService(dataSource);
-    }
+//    @Bean("jdbcClientDetailsService")
+//    public ClientDetailsService clientDetailsService() {
+//        return new JdbcClientDetailsService(dataSource);
+//    }
 
     /**
      * OAuth2客户端 从数据库加载
@@ -71,7 +65,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         // 使用 数据库 作为客户端信息的载体
-        clients.withClientDetails(clientDetailsService());
+        clients.withClientDetails(clientDetailsService);
+
     }
 
 
@@ -113,19 +108,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
      */
     @Bean
     public KeyPair keyPair() {
-
-//        Resource classPathResource = new ClassPathResource("jwt.jks");
-//
-//        try {
-//            InputStream inputStream = classPathResource.getInputStream();
-//            String s = inputStream.toString();
-//            System.out.println(s);
-//        } catch (IOException e) {
-//            System.out.println(e);
-//            System.out.println("-------------------");
-//            e.printStackTrace();
-//        }
-
         KeyStoreKeyFactory factory = new KeyStoreKeyFactory(new ClassPathResource("jwt.jks"), "123456".toCharArray());
         KeyPair keyPair = factory.getKeyPair("jwt", "123456".toCharArray());
         return keyPair;
@@ -139,9 +121,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         return (accessToken, authentication) -> {
             Map<String, Object> additionalInfo = CollectionUtil.newHashMap();
             //从OAuth2Authentication获取用户信息
-            OAuthUserDetails oAuthUserDetails = (com.xzll.auth.entity.OAuthUserDetails) authentication.getUserAuthentication().getPrincipal();
-            additionalInfo.put("userId", oAuthUserDetails.getId());
-            additionalInfo.put("username", oAuthUserDetails.getUsername());
+            UserDetailsWapper userDetailsWapper = (UserDetailsWapper) authentication.getUserAuthentication().getPrincipal();
+            additionalInfo.put("userId", userDetailsWapper.getId());
+            additionalInfo.put("username", userDetailsWapper.getUsername());
             //对token内容进行增强 使其携带userName和userId
             ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
             return accessToken;

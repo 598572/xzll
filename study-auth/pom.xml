@@ -9,12 +9,10 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <packaging>jar</packaging>
-
     <artifactId>study-auth</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>study-auth</name>
-    <description>auth模块</description>
+    <description>auth模块认证模块</description>
 
     <dependencies>
         <!-- 实现对 Spring Security OAuth2 的自动配置 -->
@@ -58,9 +56,19 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <!--使用和数据库对应的jdbc包-->
-            <version>8.0.23</version>
         </dependency>
+
+		<dependency>
+			<groupId>com.xzll</groupId>
+			<artifactId>study-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.xzll</groupId>
+			<artifactId>study-admin-api</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 
     </dependencies>
 
