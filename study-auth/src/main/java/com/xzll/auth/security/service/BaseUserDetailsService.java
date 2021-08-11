@@ -51,13 +51,15 @@ public class BaseUserDetailsService implements UserDetailsService {
 		HttpServletRequest request = attributes.getRequest();
 		String clientId = request.getParameter("client_id");
 
-		List<AdminUserDTO> byUserName = adminUserFeignClient.findByUserName(username);
-		if (CollectionUtils.isEmpty(byUserName)){
-			throw new XzllAuthException("用户不存在!");
-		}
+//		List<AdminUserDTO> byUserName = adminUserFeignClient.findByUserName(username);
+//		if (CollectionUtils.isEmpty(byUserName)){
+//			throw new XzllAuthException("用户不存在!");
+//		}
 		//todo 根据userId 进行权限查询与缓存
-
-		AdminUserDTO adminUserDTO = byUserName.get(0);
+		AdminUserDTO adminUserDTO1 = new AdminUserDTO();
+		adminUserDTO1.setUsername("黄壮壮28198");
+		AdminUserDTO adminUserDTO = adminUserDTO1;
+//		AdminUserDTO adminUserDTO = byUserName.get(0);
 		return UserDetailsWapper.builder().username(adminUserDTO.getUsername())
 				.password(adminUserDTO.getPassword()).build();
     }

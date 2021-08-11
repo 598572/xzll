@@ -3,15 +3,23 @@ package com.xzll.auth.security.provider;
 import com.xzll.auth.security.token.PhoneAuthenticationToken;
 import com.xzll.common.base.XzllAuthException;
 import com.xzll.common.util.RedisClient;
+import com.xzll.common.util.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 
 import static com.xzll.common.base.constant.RedisConstantKey.AuthConstantRedisKey.phoneVerifyKey;
@@ -27,9 +35,9 @@ public class PhoneAuthenticationProvider implements AuthenticationProvider {
 
 	/**注意这里使用set方式注入 */
 	private UserDetailsService userDetailsService;
-
-	@Autowired
-	private RedisClient redisClient;
+//
+//	@Autowired
+//	private RedisClient redisClient;
 
 	/**
 	 * 通过 PhoneAuthenticationFilter 的 attemptAuthentication 方法后 代表尝试认证成功?，开始对其进行认证
@@ -45,9 +53,12 @@ public class PhoneAuthenticationProvider implements AuthenticationProvider {
 		Object principal = authenticationToken.getPrincipal();
 		Object credentials = authenticationToken.getCredentials();
 
+		System.out.println("****  authenticate  ***一次请求会产生两次认证****:");
+
 		if (Objects.isNull(principal)) throw new XzllAuthException("手机号必填!");
 		if (Objects.isNull(credentials)) throw new XzllAuthException("验证码必填!");
 
+		RedisClient redisClient = SpringUtil.getBean(RedisClient.class);
 		Object verify = redisClient.get(phoneVerifyKey(principal.toString(), "phone"));
 		if (verify == null) throw new XzllAuthException("redis没有验证码!");
 
@@ -56,10 +67,21 @@ public class PhoneAuthenticationProvider implements AuthenticationProvider {
 		}
 		String phone = principal.toString();
 
+		String contextPath = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getContextPath();
+		System.out.println(contextPath+":  urllllllllllllllllll ");
+
 		UserDetails user = userDetailsService.loadUserByUsername(phone);
 		if (Objects.isNull(user)) throw new InternalAuthenticationServiceException("无效认证");
 
-		PhoneAuthenticationToken authenticationResult = new PhoneAuthenticationToken(user, user.getAuthorities());
+
+//		if (password.equals(provider.getPassword()))
+
+			Collection<? extends GrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
+//			UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(providerName, password, authorities);
+//			return authenticationToken;
+
+
+		PhoneAuthenticationToken authenticationResult = new PhoneAuthenticationToken(principal,credentials, authorities);
 		authenticationResult.setDetails(authenticationToken.getDetails());
 		return authenticationResult;
 	}

@@ -1,13 +1,15 @@
 package com.xzll.auth.security.config;
 
 import com.xzll.auth.security.filter.PhoneAuthenticationFilter;
-import com.xzll.auth.security.handler.PhoneSuccessHandler;
+//import com.xzll.auth.security.handler.PhoneSuccessHandler;
 //import com.xzll.auth.security.password.CustomPassword;
 import com.xzll.auth.security.provider.PhoneAuthenticationProvider;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -123,7 +125,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		filter.setAuthenticationSuccessHandler(getLoginSuccessAuth());
+
+		//filter.setAuthenticationSuccessHandler(getLoginSuccessAuth());
 		//filter.setAuthenticationFailureHandler(getLoginFailure());暂时先不做
 		return filter;
 	}
@@ -132,11 +135,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	 * 登录成功后处理器 (bean)
 	 * @return
 	 */
-	@Bean
-	public PhoneSuccessHandler getLoginSuccessAuth(){
-		PhoneSuccessHandler phoneSuccessHandler = new PhoneSuccessHandler();
-		return phoneSuccessHandler;
-	}
+//	@Bean
+//	public PhoneSuccessHandler getLoginSuccessAuth(){
+//		PhoneSuccessHandler phoneSuccessHandler = new PhoneSuccessHandler();
+//		return phoneSuccessHandler;
+//	}
 
 
 }

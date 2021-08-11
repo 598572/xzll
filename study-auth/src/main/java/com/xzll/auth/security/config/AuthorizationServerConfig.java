@@ -17,11 +17,14 @@ import org.springframework.security.oauth2.config.annotation.configurers.ClientD
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 
+import javax.sql.DataSource;
 import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,20 +44,20 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Autowired
     private BaseUserDetailsService userDetailsService;
     //客户端信息 一般指资源服务器，个人理解
-    @Autowired
-    private ClientDetailsServiceImpl clientDetailsService;
 //    @Autowired
-//    private DataSource dataSource;
+//    private ClientDetailsServiceImpl clientDetailsService;
+    @Autowired
+    private DataSource dataSource;
 
     /**
      * 使用数据源实例化 jdbcClientDetailsService bean
      *
      * @return
      */
-//    @Bean("jdbcClientDetailsService")
-//    public ClientDetailsService clientDetailsService() {
-//        return new JdbcClientDetailsService(dataSource);
-//    }
+    @Bean("jdbcClientDetailsService")
+    public ClientDetailsService clientDetailsService() {
+        return new JdbcClientDetailsService(dataSource);
+    }
 
     /**
      * OAuth2客户端 从数据库加载
@@ -65,7 +68,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         // 使用 数据库 作为客户端信息的载体
-        clients.withClientDetails(clientDetailsService);
+        clients.withClientDetails(clientDetailsService());
 
     }
 

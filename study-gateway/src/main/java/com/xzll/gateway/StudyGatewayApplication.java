@@ -8,7 +8,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 /**
  * 网关认证模块 目前是最初版本  将会添加动态路由 监控 鉴权 限流等功能
  */
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+@SpringBootApplication
 @EnableDiscoveryClient
 public class StudyGatewayApplication {
 

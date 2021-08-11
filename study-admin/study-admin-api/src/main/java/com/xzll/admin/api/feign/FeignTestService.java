@@ -1,4 +1,4 @@
-//package com.xzll.test.feign;
+//package com.xzll.admin.api.feign;
 //
 //import org.springframework.cloud.openfeign.FeignClient;
 //import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +11,7 @@
 // * @Create 2020/12/8 0008 - 18:45
 // * @Description
 // */
-//@FeignClient(name = "study-test")
+//@FeignClient(name = "study-123",contextId = "feignTestService")
 //public interface FeignTestService {
 //
 //    @GetMapping(value = "/testController/test")

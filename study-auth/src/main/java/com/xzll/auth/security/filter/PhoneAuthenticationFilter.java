@@ -2,6 +2,7 @@ package com.xzll.auth.security.filter;
 
 import com.alibaba.nacos.common.utils.HttpMethod;
 import com.xzll.auth.security.token.PhoneAuthenticationToken;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -60,6 +61,7 @@ public class PhoneAuthenticationFilter extends AbstractAuthenticationProcessingF
 		// 获取传入的手机号和验证码
 		String phone = getParamByRequest(request,SPRING_SECURITY_PHONE_VERIFY_PHONE);
 		String verifyCode = getParamByRequest(request,SPRING_SECURITY_PHONE_VERIFY_CODE);
+		System.out.println("****attemptAuthentication***一次请求会产生两次认证****:"+request.getServletPath());
 
 		// 在此我们需要创建我们自己的授权 token 其实就是模仿的 UsernamePasswordAuthenticationToken类 呵呵
 		PhoneAuthenticationToken authRequest = new PhoneAuthenticationToken(phone,verifyCode);
