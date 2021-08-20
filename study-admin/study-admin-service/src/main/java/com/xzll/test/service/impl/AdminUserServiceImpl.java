@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public List<AdminUserDTO> findByUserName(String username) {
 		LambdaQueryWrapper<AdminUserDO> queryWrapper = new LambdaQueryWrapper<>();
 		queryWrapper.eq(AdminUserDO::getUsername,username);

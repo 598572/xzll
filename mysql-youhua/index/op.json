@@ -1,0 +1,644 @@
+
+FROM
+<表名> # 选取表，将多个表数据通过笛卡尔积变成一个表。
+ON
+<筛选条件> # 对笛卡尔积的虚表进行筛选
+JOIN <join, left join, right join...>
+<join表> # 指定join，用于添加数据到on之后的虚表中，例如left join会将左表的剩余数据添加到虚表中
+WHERE
+<where条件> # 对上述虚表进行筛选
+GROUP BY
+<分组条件> # 分组
+<SUM()等聚合函数> # 用于having子句进行判断，在书写上这类聚合函数是写在having判断里面的
+HAVING
+<分组筛选> # 对分组后的结果进行聚合筛选
+SELECT
+<返回数据列表> # 返回的单列必须在group by子句中，聚合函数除外
+DISTINCT
+<数据除重>
+ORDER BY
+<排序条件> # 排序
+LIMIT
+<行数限制>
+
+{
+  "steps": [
+    {
+      "join_preparation": {                             #1 准备阶段
+        "select#": 1,
+        "steps": [
+          {
+            "join_preparation": {
+              "select#": 2,
+              "steps": [
+                {
+                  "expanded_query": "/* select#2 */ select `xzll_student2000000`.`id` AS `id` from `xzll_student2000000` where ((`xzll_student2000000`.`ctime` > '2021-08-01 00:00:00') and (`xzll_student2000000`.`ctime` < '2021-08-15 23:59:59')) limit 1500000,10"
+                }
+              ] /* steps */
+            } /* join_preparation */
+          },
+          {
+            "derived": {
+              "table": " `b`",
+              "select#": 2,
+              "materialized": true
+            } /* derived */
+          },
+          {
+            "expanded_query": "/* select#1 */ select `a`.`id` AS `id`,`a`.`name` AS `name`,`a`.`address` AS `address`,`a`.`hobby` AS `hobby`,`a`.`intention` AS `intention`,`a`.`edu` AS `edu`,`a`.`channel` AS `channel`,`a`.`level` AS `level`,`a`.`status` AS `status`,`a`.`sex` AS `sex`,`a`.`project` AS `project`,`a`.`ctime` AS `ctime`,`a`.`utime` AS `utime` from (`xzll_student2000000` `a` join (/* select#2 */ select `xzll_student2000000`.`id` AS `id` from `xzll_student2000000` where ((`xzll_student2000000`.`ctime` > '2021-08-01 00:00:00') and (`xzll_student2000000`.`ctime` < '2021-08-15 23:59:59')) limit 1500000,10) `b` on((`a`.`id` = `b`.`id`)))"
+          },
+          {
+            "transformations_to_nested_joins": {
+              "transformations": [
+                "JOIN_condition_to_WHERE",
+                "parenthesis_removal"
+              ] /* transformations */,
+              "expanded_query": "/* select#1 */ select `a`.`id` AS `id`,`a`.`name` AS `name`,`a`.`address` AS `address`,`a`.`hobby` AS `hobby`,`a`.`intention` AS `intention`,`a`.`edu` AS `edu`,`a`.`channel` AS `channel`,`a`.`level` AS `level`,`a`.`status` AS `status`,`a`.`sex` AS `sex`,`a`.`project` AS `project`,`a`.`ctime` AS `ctime`,`a`.`utime` AS `utime` from `xzll_student2000000` `a` join (/* select#2 */ select `xzll_student2000000`.`id` AS `id` from `xzll_student2000000` where ((`xzll_student2000000`.`ctime` > '2021-08-01 00:00:00') and (`xzll_student2000000`.`ctime` < '2021-08-15 23:59:59')) limit 1500000,10) `b` where (`a`.`id` = `b`.`id`)"
+            } /* transformations_to_nested_joins */
+          }
+        ] /* steps */
+      } /* join_preparation */
+    },
+    {
+      "join_optimization": {                             #2 optimize阶段
+        "select#": 1,
+        "steps": [
+          {
+            "join_optimization": {
+              "select#": 2,
+              "steps": [
+                {
+                  "condition_processing": {             #3. 搜索条件处理 包括优化 无用的搜索条件去除等
+                    "condition": "WHERE",
+                    "original_condition": "((`xzll_student2000000`.`ctime` > '2021-08-01 00:00:00') and (`xzll_student2000000`.`ctime` < '2021-08-15 23:59:59'))",
+                    "steps": [
+                      {
+                        "transformation": "equality_propagation",
+                        "resulting_condition": "((`xzll_student2000000`.`ctime` > '2021-08-01 00:00:00') and (`xzll_student2000000`.`ctime` < '2021-08-15 23:59:59'))"
+                      },
+                      {
+                        "transformation": "constant_propagation",
+                        "resulting_condition": "((`xzll_student2000000`.`ctime` > '2021-08-01 00:00:00') and (`xzll_student2000000`.`ctime` < '2021-08-15 23:59:59'))"
+                      },
+                      {
+                        "transformation": "trivial_condition_removal",
+                        "resulting_condition": "((`xzll_student2000000`.`ctime` > TIMESTAMP'2021-08-01 00:00:00') and (`xzll_student2000000`.`ctime` < TIMESTAMP'2021-08-15 23:59:59'))"
+                      }
+                    ] /* steps */
+                  } /* condition_processing */
+                },
+                {
+                  "substitute_generated_columns": {
+                  } /* substitute_generated_columns */
+                },
+                {
+                  "table_dependencies": [                    #4. 表的依赖信息
+                    {
+                      "table": "`xzll_student2000000`",
+                      "row_may_be_null": false,
+                      "map_bit": 0,
+                      "depends_on_map_bits": [
+                      ] /* depends_on_map_bits */
+                    }
+                  ] /* table_dependencies */
+                },
+                {
+                  "ref_optimizer_key_uses": [
+                  ] /* ref_optimizer_key_uses */
+                },
+                {
+                  "rows_estimation": [                       # 5. 预估不同单表访问方法的访问成本
+                    {
+                      "table": "`xzll_student2000000`",
+                      "range_analysis": {
+                        "table_scan": {
+                          "rows": 1906942,
+                          "cost": 1.98566e+06
+                        } /* table_scan */,
+                        "potential_range_indexes": [
+                          {
+                            "index": "PRIMARY",
+                            "usable": false,
+                            "cause": "not_applicable"
+                          },
+                          {
+                            "index": "idx_level",
+                            "usable": false,
+                            "cause": "not_applicable"
+                          },
+                          {
+                            "index": "idx_name_address_project",
+                            "usable": false,
+                            "cause": "not_applicable"
+                          },
+                          {
+                            "index": "idx_hobby",
+                            "usable": false,
+                            "cause": "not_applicable"
+                          },
+                          {
+                            "index": "idx_channel",
+                            "usable": false,
+                            "cause": "not_applicable"
+                          },
+                          {
+                            "index": "idx_ctime_status",
+                            "usable": true,  -- # 可能使用
+                            "key_parts": [
+                              "ctime",
+                              "status",
+                              "id"
+                            ] /* key_parts */
+                          },
+                          {
+                            "index": "idx_status_ctime",
+                            "usable": true,  -- # 可能使用
+                            "key_parts": [
+                              "status",
+                              "ctime",
+                              "id"
+                            ] /* key_parts */
+                          },
+                          {
+                            "index": "idx_ctime",
+                            "usable": true,  -- # 可能使用
+                            "key_parts": [
+                              "ctime",
+                              "id"
+                            ] /* key_parts */
+                          }
+                        ] /* potential_range_indexes */,
+                        "best_covering_index_scan": {
+                          "index": "idx_ctime",
+                          "cost": 193487,
+                          "chosen": true
+                        } /* best_covering_index_scan */,
+                        "setup_range_conditions": [
+                        ] /* setup_range_conditions */,
+                        "group_index_range": {
+                          "chosen": false,
+                          "cause": "not_group_by_or_distinct"
+                        } /* group_index_range */,
+                        "skip_scan_range": {
+                          "potential_skip_scan_indexes": [
+                            {
+                              "index": "idx_ctime_status",
+                              "usable": false,
+                              "cause": "prefix_not_const_equality"
+                            },
+                            {
+                              "index": "idx_status_ctime",
+                              "tree_travel_cost": 1.05,
+                              "num_groups": 10,
+                              "rows": 211840,
+                              "cost": 32158.9
+                            },
+                            {
+                              "index": "idx_ctime",
+                              "usable": false,
+                              "cause": "prefix_not_const_equality"
+                            }
+                          ] /* potential_skip_scan_indexes */
+                        } /* skip_scan_range */,
+                        "best_skip_scan_summary": {
+                          "type": "skip_scan",
+                          "index": "idx_status_ctime",
+                          "key_parts_used_for_access": [
+                            "status",
+                            "ctime"
+                          ] /* key_parts_used_for_access */,
+                          "range": [
+                            "0x61057380 < ctime < 0x611939ff"
+                          ] /* range */,
+                          "chosen": true
+                        } /* best_skip_scan_summary */,
+
+                        ############## 分析各种可能使用的索引的成本 ##############
+                        "analyzing_range_alternatives": {  ### 分析范围备选方案 可以看到 范围查询的方案 一个也没选择
+                          "range_scan_alternatives": [     ### 范围扫描方案
+                            {
+                              "index": "idx_ctime_status",  # 索引名称
+                              "ranges": [
+                                "0x61057380 < ctime < 0x611939ff"  # 查询条件
+                              ] /* ranges */,
+                              "index_dives_for_eq_ranges": true,   # 是否使用index dive
+                              "rowid_ordered": false,              # 使用该索引获取的记录是否按照主键排序
+                              "using_mrr": false,                  # 是否使用mrr
+                              "index_only": true,                  # 是否是索引覆盖访问
+                              "rows": 953471,					   # 使用该索引获取的记录条数
+                              "cost": 97206.7,					   # 使用该索引的成本
+                              "chosen": false,					   # 是否选择该索引
+                              "cause": "cost"					   # 使用or不使用该索引的 原因
+                            },
+                            {
+                              "index": "idx_status_ctime",		   # 见邻上
+                              "chosen": false,                     # 见邻上
+                              "cause": "no_valid_range_for_this_index"  # 见邻上
+                            },
+                            {
+                              "index": "idx_ctime",  # 见邻邻上
+                              "ranges": [
+                                "0x61057380 < ctime < 0x611939ff" # 见邻邻上
+                              ] /* ranges */,
+                              "index_dives_for_eq_ranges": true, # 见邻邻上
+                              "rowid_ordered": false, # 见邻邻上
+                              "using_mrr": false,     # 见邻邻上
+                              "index_only": true,     # 见邻邻上
+                              "rows": 953471,         # 见邻邻上
+                              "cost": 96744.1,        # 见邻邻上
+                              "chosen": false,        # 见邻邻上
+                              "cause": "cost"         # 见邻邻上
+                            }
+                          ] /* range_scan_alternatives */,
+
+                           # 分析使用索引合并的成本
+                          "analyzing_roworder_intersect": {
+                            "usable": false,
+                            "cause": "too_few_roworder_scans"
+                          } /* analyzing_roworder_intersect */
+                        } /* analyzing_range_alternatives */,
+
+                        # 对于上述单表查询最优的访问方法 ******重要*******
+
+                        "chosen_range_access_summary": {  # 选择范围访问摘要
+                          # 范围访问计划
+                          "range_access_plan": {
+                            "type": "skip_scan",  		 # 跳跃访问
+                            "index": "idx_status_ctime", # 索引名称
+                            "key_parts_used_for_access": [
+                              "status",
+                              "ctime"
+                            ] /* key_parts_used_for_access */,
+                            "range": [
+                              "0x61057380 < ctime < 0x611939ff"
+                            ] /* range */
+                          } /* range_access_plan */,
+                          "rows_for_plan": 211840,
+                          "cost_for_plan": 32158.9,
+                          "chosen": true                 # 是否选择
+                        } /* chosen_range_access_summary */
+                      } /* range_analysis */
+                    }
+                  ] /* rows_estimation */
+                },
+                {
+                  # 分析各种可能的执行计划  ******重要*******
+
+                  "considered_execution_plans": [
+                    {
+                      "plan_prefix": [
+                      ] /* plan_prefix */,
+                      "table": "`xzll_student2000000`",
+                      "best_access_path": {  # 最好的访问方式
+                        "considered_access_paths": [
+                          {
+                            "rows_to_scan": 211840,
+                            "filtering_effect": [
+                            ] /* filtering_effect */,
+                            "final_filtering_effect": 1,
+                            "access_type": "range",
+                            "range_details": {
+                              "used_index": "index_for_skip_scan(idx_status_ctime)" # 索引跳跃扫描
+                            } /* range_details */,
+                            "resulting_rows": 211840,
+                            "cost": 53342.9,
+                            "chosen": true     # 是否使用
+                          }
+                        ] /* considered_access_paths */
+                      } /* best_access_path */,
+                      "condition_filtering_pct": 100,
+                      "rows_for_plan": 211840,
+                      "cost_for_plan": 53342.9,
+                      "chosen": true
+                    }
+                  ] /* considered_execution_plans */
+                },
+                {
+                  "attaching_conditions_to_tables": {
+                    "original_condition": "((`xzll_student2000000`.`ctime` > TIMESTAMP'2021-08-01 00:00:00') and (`xzll_student2000000`.`ctime` < TIMESTAMP'2021-08-15 23:59:59'))",
+                    "attached_conditions_computation": [
+                    ] /* attached_conditions_computation */,
+                    "attached_conditions_summary": [
+                      {
+                        "table": "`xzll_student2000000`",
+                        "attached": "((`xzll_student2000000`.`ctime` > TIMESTAMP'2021-08-01 00:00:00') and (`xzll_student2000000`.`ctime` < TIMESTAMP'2021-08-15 23:59:59'))"
+                      }
+                    ] /* attached_conditions_summary */
+                  } /* attaching_conditions_to_tables */
+                },
+                {
+                  "finalizing_table_conditions": [
+                    {
+                      "table": "`xzll_student2000000`",
+                      "original_table_condition": "((`xzll_student2000000`.`ctime` > TIMESTAMP'2021-08-01 00:00:00') and (`xzll_student2000000`.`ctime` < TIMESTAMP'2021-08-15 23:59:59'))",
+                      "final_table_condition   ": "((`xzll_student2000000`.`ctime` > TIMESTAMP'2021-08-01 00:00:00') and (`xzll_student2000000`.`ctime` < TIMESTAMP'2021-08-15 23:59:59'))"
+                    }
+                  ] /* finalizing_table_conditions */
+                },
+                {
+                  "refine_plan": [
+                    {
+                      "table": "`xzll_student2000000`"
+                    }
+                  ] /* refine_plan */
+                }
+              ] /* steps */
+            } /* join_optimization */
+          },
+          {
+            "condition_processing": {
+              "condition": "WHERE",
+              "original_condition": "(`a`.`id` = `b`.`id`)",
+              "steps": [
+                {
+                  "transformation": "equality_propagation",
+                  "resulting_condition": "multiple equal(`a`.`id`, `b`.`id`)"
+                },
+                {
+                  "transformation": "constant_propagation",
+                  "resulting_condition": "multiple equal(`a`.`id`, `b`.`id`)"
+                },
+                {
+                  "transformation": "trivial_condition_removal",
+                  "resulting_condition": "multiple equal(`a`.`id`, `b`.`id`)"
+                }
+              ] /* steps */
+            } /* condition_processing */
+          },
+          {
+            "substitute_generated_columns": {
+            } /* substitute_generated_columns */
+          },
+          {
+          # 下一个查询的计划详情 和上边大同小异 就不做注释了
+            "table_dependencies": [
+              {
+                "table": "`xzll_student2000000` `a`",
+                "row_may_be_null": false,
+                "map_bit": 0,
+                "depends_on_map_bits": [
+                ] /* depends_on_map_bits */
+              },
+              {
+                "table": " `b`",
+                "row_may_be_null": false,
+                "map_bit": 1,
+                "depends_on_map_bits": [
+                ] /* depends_on_map_bits */
+              }
+            ] /* table_dependencies */
+          },
+          {
+            "ref_optimizer_key_uses": [
+              {
+                "table": "`xzll_student2000000` `a`",
+                "field": "id",
+                "equals": "`b`.`id`",
+                "null_rejecting": true
+              },
+              {
+                "table": " `b`",
+                "field": "id",
+                "equals": "`a`.`id`",
+                "null_rejecting": true
+              },
+              {
+                "table": " `b`",
+                "field": "id",
+                "equals": "`a`.`id`",
+                "null_rejecting": true
+              }
+            ] /* ref_optimizer_key_uses */
+          },
+          {
+            "rows_estimation": [
+              {
+                "table": "`xzll_student2000000` `a`",
+                "table_scan": {
+                  "rows": 1906942,
+                  "cost": 31024.5
+                } /* table_scan */
+              },
+              {
+                "table": " `b`",
+                "table_scan": {
+                  "rows": 211840,
+                  "cost": 2650.5
+                } /* table_scan */
+              }
+            ] /* rows_estimation */
+          },
+          {
+            "considered_execution_plans": [
+              {
+                "plan_prefix": [
+                ] /* plan_prefix */,
+                "table": " `b`",
+                "best_access_path": {
+                  "considered_access_paths": [
+                    {
+                      "access_type": "ref",
+                      "index": "<auto_key0>",
+                      "usable": false,
+                      "chosen": false
+                    },
+                    {
+                      "access_type": "ref",
+                      "index": "<auto_key1>",
+                      "usable": false,
+                      "chosen": false
+                    },
+                    {
+                      "rows_to_scan": 211840,
+                      "filtering_effect": [
+                      ] /* filtering_effect */,
+                      "final_filtering_effect": 1,
+                      "access_type": "scan",
+                      "resulting_rows": 211840,
+                      "cost": 23834.5,
+                      "chosen": true
+                    }
+                  ] /* considered_access_paths */
+                } /* best_access_path */,
+                "condition_filtering_pct": 100,
+                "rows_for_plan": 211840,
+                "cost_for_plan": 23834.5,
+                "rest_of_plan": [
+                  {
+                    "plan_prefix": [
+                      " `b`"
+                    ] /* plan_prefix */,
+                    "table": "`xzll_student2000000` `a`",
+                    "best_access_path": {
+                      "considered_access_paths": [
+                        {
+                          "access_type": "eq_ref",
+                          "index": "PRIMARY",
+                          "rows": 1,
+                          "cost": 220584,
+                          "chosen": true,
+                          "cause": "clustered_pk_chosen_by_heuristics"
+                        },
+                        {
+                          "rows_to_scan": 1906942,
+                          "filtering_effect": [
+                          ] /* filtering_effect */,
+                          "final_filtering_effect": 1,
+                          "access_type": "scan",
+                          "using_join_cache": true,
+                          "buffers_needed": 7,
+                          "resulting_rows": 1.90694e+06,
+                          "cost": 4.03969e+10,
+                          "chosen": false
+                        }
+                      ] /* considered_access_paths */
+                    } /* best_access_path */,
+                    "condition_filtering_pct": 100,
+                    "rows_for_plan": 211840,
+                    "cost_for_plan": 244419,
+                    "chosen": true
+                  }
+                ] /* rest_of_plan */
+              },
+              {
+                "plan_prefix": [
+                ] /* plan_prefix */,
+                "table": "`xzll_student2000000` `a`",
+                "best_access_path": {
+                  "considered_access_paths": [
+                    {
+                      "access_type": "ref",
+                      "index": "PRIMARY",
+                      "usable": false,
+                      "chosen": false
+                    },
+                    {
+                      "rows_to_scan": 1906942,
+                      "filtering_effect": [
+                      ] /* filtering_effect */,
+                      "final_filtering_effect": 1,
+                      "access_type": "scan",
+                      "resulting_rows": 1.90694e+06,
+                      "cost": 221719,
+                      "chosen": true
+                    }
+                  ] /* considered_access_paths */
+                } /* best_access_path */,
+                "condition_filtering_pct": 100,
+                "rows_for_plan": 1.90694e+06,
+                "cost_for_plan": 221719,
+                "rest_of_plan": [
+                  {
+                    "plan_prefix": [
+                      "`xzll_student2000000` `a`"
+                    ] /* plan_prefix */,
+                    "table": " `b`",
+                    "best_access_path": {
+                      "considered_access_paths": [
+                        {
+                          "access_type": "ref",
+                          "index": "<auto_key0>",
+                          "rows": 10,
+                          "cost": 6.6743e+06,
+                          "chosen": true
+                        },
+                        {
+                          "access_type": "ref",
+                          "index": "<auto_key1>",
+                          "rows": 10,
+                          "cost": 6.6743e+06,
+                          "chosen": false
+                        },
+                        {
+                          "rows_to_scan": 211840,
+                          "filtering_effect": [
+                          ] /* filtering_effect */,
+                          "final_filtering_effect": 1,
+                          "access_type": "scan",
+                          "using_join_cache": true,
+                          "buffers_needed": 52253,
+                          "resulting_rows": 211840,
+                          "cost": 4.05352e+10,
+                          "chosen": false
+                        }
+                      ] /* considered_access_paths */
+                    } /* best_access_path */,
+                    "condition_filtering_pct": 100,
+                    "rows_for_plan": 1.90694e+07,
+                    "cost_for_plan": 6.89602e+06,
+                    "pruned_by_cost": true
+                  }
+                ] /* rest_of_plan */
+              }
+            ] /* considered_execution_plans */
+          },
+          {
+            "attaching_conditions_to_tables": {
+              "original_condition": "(`a`.`id` = `b`.`id`)",
+              "attached_conditions_computation": [
+              ] /* attached_conditions_computation */,
+              "attached_conditions_summary": [
+                {
+                  "table": " `b`",
+                  "attached": null
+                },
+                {
+                  "table": "`xzll_student2000000` `a`",
+                  "attached": "(`a`.`id` = `b`.`id`)"
+                }
+              ] /* attached_conditions_summary */
+            } /* attaching_conditions_to_tables */
+          },
+          {
+            "finalizing_table_conditions": [
+              {
+                "table": "`xzll_student2000000` `a`",
+                "original_table_condition": "(`a`.`id` = `b`.`id`)",
+                "final_table_condition   ": null
+              }
+            ] /* finalizing_table_conditions */
+          },
+          {
+            "refine_plan": [
+              {
+                "table": " `b`"
+              },
+              {
+                "table": "`xzll_student2000000` `a`"
+              }
+            ] /* refine_plan */
+          }
+        ] /* steps */
+      } /* join_optimization */
+    },
+    {
+      "join_execution": {
+        "select#": 1,
+        "steps": [
+          {
+            "creating_tmp_table": {
+              "tmp_table_info": {
+                "table": " `b`",
+                "in_plan_at_position": 0,
+                "columns": 1,
+                "row_length": 9,
+                "key_length": 0,
+                "unique_constraint": false,
+                "makes_grouped_rows": false,
+                "cannot_insert_duplicates": false,
+                "location": "TempTable"
+              } /* tmp_table_info */
+            } /* creating_tmp_table */
+          },
+          {
+            "materialize": {
+              "select#": 2,
+              "steps": [
+              ] /* steps */
+            } /* materialize */
+          }
+        ] /* steps */
+      } /* join_execution */
+    }
+  ] /* steps */
+}
