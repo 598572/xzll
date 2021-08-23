@@ -1,0 +1,4 @@
+
+# Application Context Initializers
+#org.springframework.context.ApplicationContextInitializer=\
+#com.xzll.test.point.ApplicationContextInitializerPoint
