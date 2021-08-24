@@ -19,7 +19,7 @@ public class BeanPostProcessPoint implements BeanPostProcessor {
 	}
 
 	/**
-	 * bean实例化之前
+	 * bean初始化前后
 	 *
 	 * @param bean
 	 * @param beanName
@@ -31,10 +31,10 @@ public class BeanPostProcessPoint implements BeanPostProcessor {
 		/**
 		 * 可以根据需要在这里进行某个bean的扩展
 		 */
-		if (bean instanceof TestController) {
+		if (bean instanceof InitializingBeanPoint) {
 			System.out.println("-----------------------[BeanPostProcessPoint]  扩展点演示 # postProcessBeforeInitialization  开始--------------------------------------");
 			System.out.println("[BeanPostProcessPoint]  扩展点演示 # postProcessBeforeInitialization , crurrentBeanName: " + beanName);
-			System.out.println("这里只有当bean是TestController时候才打印 否则的话控制台要爆满了 根本看不清 ");
+			System.out.println("这里只有当bean是 InitializingBeanPoint 时候才打印 否则的话控制台要爆满了 根本看不清,另外也是为了好和BeanNameAware以及InitializingBean做比较 ");
 			System.out.println("时机 bean实例化后，初始化之前");
 			System.out.println("-----------------------[BeanPostProcessPoint]  扩展点演示 # postProcessBeforeInitialization  结束--------------------------------------");
 			System.out.println();
@@ -55,11 +55,11 @@ public class BeanPostProcessPoint implements BeanPostProcessor {
 		/**
 		 * 可以根据需要在这里进行某个bean的扩展
 		 */
-		if (bean instanceof TestController) {
+		if (bean instanceof InitializingBeanPoint) {
 			System.out.println("-----------------------[BeanPostProcessPoint]  扩展点演示 # postProcessAfterInitialization  开始--------------------------------------");
 			System.out.println("[BeanPostProcessPoint]  扩展点演示 # postProcessAfterInitialization , crurrentBeanName: " + beanName);
-			System.out.println("这里只有当bean是TestController时候才打印 否则的话控制台要爆满了 根本看不清 ");
-			System.out.println("时机 bean实例化时候");
+			System.out.println("这里只有当bean是 InitializingBeanPoint 时候才打印 否则的话控制台要爆满了 根本看不清,另外也是为了好和BeanNameAware以及InitializingBean做比较 ");
+			System.out.println("时机 bean初始化后");
 			System.out.println("-----------------------[BeanPostProcessPoint]  扩展点演示 # postProcessAfterInitialization  结束--------------------------------------");
 			System.out.println();
 		}

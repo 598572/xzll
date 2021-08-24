@@ -42,4 +42,9 @@ public class InstantiationAwareBeanPostProcessorPoint implements InstantiationAw
 //		System.out.println("[InstantiationAwareBeanPostProcessorPoint] postProcessPropertyValues " + beanName);
 		return pvs;
 	}
+
+	@Override
+	public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) throws BeansException {
+		return null;
+	}
 }
