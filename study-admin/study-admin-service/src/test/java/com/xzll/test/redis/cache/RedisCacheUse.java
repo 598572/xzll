@@ -8,18 +8,14 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.xzll.test.StudyTestApplicationTest;
 import com.xzll.test.entity.AdminUserDO;
 import com.xzll.test.mapper.AdminUserMapper;
-import com.xzll.test.redis.common.RedisCommonTest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.*;

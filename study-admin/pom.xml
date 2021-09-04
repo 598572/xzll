@@ -6,6 +6,8 @@
         <groupId>com.xzll</groupId>
         <artifactId>study</artifactId>
         <version>0.0.1-SNAPSHOT</version>
+<!--		父项目的pom.xml文件的相对路径。相对路径允许你选择一个不同的路径。默认值是../pom.xml。Maven首先在构建当前项目的地方寻找父项 目的pom，
+其次在文件系统的这个位置（relativePath位置），然后在本地仓库，最后在远程仓库寻找父项目的pom。-->
         <relativePath>../pom.xml</relativePath> <!-- lookup parent from repository -->
     </parent>
     <!-- 这里打成jar才可以把resource中的东西打进去 packaging是pom的话只是打的class文件 -->
