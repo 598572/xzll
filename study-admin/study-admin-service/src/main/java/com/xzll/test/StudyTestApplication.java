@@ -1,5 +1,6 @@
 package com.xzll.test;
 
+import com.xzll.common.rabbitmq.EnableRabbitMq;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -15,6 +16,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 //@EnableAspectJAutoProxy
 @EnableRetry
 @EnableScheduling
+@EnableRabbitMq
 public class StudyTestApplication {
 
     public static void main(String[] args) {

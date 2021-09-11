@@ -12,66 +12,66 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @Description: 读取命令行参数示例  rocketmq中大量使用了apache的cli工具读取命令行参数 所以在这里做个小示例
  */
 public class CliTest {
-    //args 的设置见 study-test/src/test/java/com/xzll/test/cli/cli示例.png
-    public static void main(String[] args) {
+	//args 的设置见 study-test/src/test/java/com/xzll/test/cli/cli示例.png
+//    public static void main(String[] args) {
+//
+//        //这里不使用写死的 直接在idea启动时候的命令行设置
+////        String[] arg = {"-h", "-c", "config.xml", "-n", "我是参数"};
+//
+//        testOptions(args);
+//    }
 
-        //这里不使用写死的 直接在idea启动时候的命令行设置
-//        String[] arg = {"-h", "-c", "config.xml", "-n", "我是参数"};
 
-        testOptions(args);
-    }
+	public static void testOptions(String[] args) {
+		Options options = new Options();
+		Option opt = new Option("h", "help", true, "Print help");
+		opt.setRequired(false);
+		options.addOption(opt);
 
+		opt = new Option("c", "configFile", true, "Name server config properties file");
+		opt.setRequired(false);
+		options.addOption(opt);
 
-    public static void testOptions(String[] args) {
-        Options options = new Options();
-        Option opt = new Option("h", "help", true, "Print help");
-        opt.setRequired(false);
-        options.addOption(opt);
+		opt = new Option("p", "printConfigItem", false, "Print all config item");
+		opt.setRequired(false);
+		options.addOption(opt);
 
-        opt = new Option("c", "configFile", true, "Name server config properties file");
-        opt.setRequired(false);
-        options.addOption(opt);
+		//当 hasArg=true时候 可以设置value ************
+		opt = new Option("n", "nameServerAdd", true, "Print nameServerAdd");
+		opt.setRequired(false);
+		options.addOption(opt);
 
-        opt = new Option("p", "printConfigItem", false, "Print all config item");
-        opt.setRequired(false);
-        options.addOption(opt);
+		HelpFormatter hf = new HelpFormatter();
+		hf.setWidth(110);
+		CommandLine commandLine = null;
+		CommandLineParser parser = new DefaultParser();
+		try {
+			commandLine = parser.parse(options, args);
+			if (commandLine.hasOption('h')) {
+				// 打印使用帮助
+				hf.printHelp("testApp", options, true);
+			}
 
-        //当 hasArg=true时候 可以设置value ************
-        opt = new Option("n", "nameServerAdd", true, "Print nameServerAdd");
-        opt.setRequired(false);
-        options.addOption(opt);
-
-        HelpFormatter hf = new HelpFormatter();
-        hf.setWidth(110);
-        CommandLine commandLine = null;
-        CommandLineParser parser = new DefaultParser();
-        try {
-            commandLine = parser.parse(options, args);
-            if (commandLine.hasOption('h')) {
-                // 打印使用帮助
-                hf.printHelp("testApp", options, true);
-            }
-
-            //打印opts的名称和值
-            System.out.println("--------------------------------------");
-            Option[] opts = commandLine.getOptions();
-            if (opts != null) {
-                for (Option opt1 : opts) {
-                    String name = opt1.getLongOpt();
-                    String value = commandLine.getOptionValue(name);
-                    System.out.println(name + "=>" + value);
-                }
-            }
-            //打印命令行设置的参数
-            List<String> argList = commandLine.getArgList();
-            if (CollectionUtils.isNotEmpty(argList)) {
-                argList.forEach(x -> {
-                    System.out.printf("命令行的参数：%s", x);
-                });
-            }
-        } catch (ParseException e) {
-            hf.printHelp("testApp", options, true);
-        }
+			//打印opts的名称和值
+			System.out.println("--------------------------------------");
+			Option[] opts = commandLine.getOptions();
+			if (opts != null) {
+				for (Option opt1 : opts) {
+					String name = opt1.getLongOpt();
+					String value = commandLine.getOptionValue(name);
+					System.out.println(name + "=>" + value);
+				}
+			}
+			//打印命令行设置的参数
+			List<String> argList = commandLine.getArgList();
+			if (CollectionUtils.isNotEmpty(argList)) {
+				argList.forEach(x -> {
+					System.out.printf("命令行的参数：%s", x);
+				});
+			}
+		} catch (ParseException e) {
+			hf.printHelp("testApp", options, true);
+		}
 
         /*
         多个
@@ -87,21 +87,76 @@ public class CliTest {
 
          */
 
-        // 关闭钩子，在关闭前处理一些操作
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            private volatile boolean hasShutdown = false;
-            private AtomicInteger shutdownTimes = new AtomicInteger(0);
+		// 关闭钩子，在关闭前处理一些操作
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			private volatile boolean hasShutdown = false;
+			private AtomicInteger shutdownTimes = new AtomicInteger(0);
 
-            @Override
-            public void run() {
-                synchronized (this) {
-                    if (!this.hasShutdown) {
-                        System.out.println();
-                        System.out.println("jvm关闭前的钩子");
-                    }
-                }
-            }
-        }, "ShutdownHook"));
+			@Override
+			public void run() {
+				synchronized (this) {
+					if (!this.hasShutdown) {
+						System.out.println();
+						System.out.println("jvm关闭前的钩子");
+					}
+				}
+			}
+		}, "ShutdownHook"));
 
-    }
+	}
+
+
+	public static void main(String[] args) {
+		//"12"+"34"      输出 "46"
+
+//		String sum = sum("10000000000000000000000000000000000000000000000", "20000000000000000000000000000000000000000000000");
+//		System.out.println(sum);
+		//[2,5,1,5,1,5]   一输出 2  二输出 5,1,2
+
+		sort();
+
+	}
+
+
+	public static String sort() {
+
+//		int[] arr = {2, 5, 1, 5, 1, 5};
+//		List list=Stream.of(arr).collect(Collectors.toList());
+//		list.stream().collect(Collectors.groupingBy())
+//		HashSet<Integer> objects = new HashSet<>();
+//
+//		for (int i = 0; i < arr.length; i++) {
+//			String key = String.valueOf(i);
+//			if (!objects.contains(key)) {
+//				objects.add(arr[i]);
+//
+//			}
+//		}
+//		objects.forEach(k -> {
+//			System.out.println(k);
+//		});
+		return "";
+	}
+
+
+	public static String sum(String one, String two) {
+		int temp = 0;
+		int tempEnd = 10;
+		for (int i = 0; i < one.length(); i++) {
+
+
+			String substring = one.substring(temp, tempEnd);
+			Integer integer = Integer.valueOf(substring);
+
+
+			temp += 10;
+			tempEnd += 10;
+
+		}
+
+
+		return "";
+	}
+
+
 }
