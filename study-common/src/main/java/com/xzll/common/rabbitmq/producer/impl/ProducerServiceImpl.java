@@ -1,6 +1,8 @@
-package com.xzll.common.rabbitmq;
+package com.xzll.common.rabbitmq.producer.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.xzll.common.rabbitmq.eneity.MqMessage;
+import com.xzll.common.rabbitmq.producer.ProducerService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageBuilder;
@@ -15,7 +17,7 @@ import org.springframework.data.redis.core.RedisTemplate;
  * @Date: 2021/9/10 12:53:33
  * @Description:
  */
-public class ProducerServiceImpl implements ProducerService{
+public class ProducerServiceImpl implements ProducerService {
 
 	@Autowired
 	private RabbitTemplate rabbitTemplate;

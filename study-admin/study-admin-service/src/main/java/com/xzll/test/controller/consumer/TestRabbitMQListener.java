@@ -3,7 +3,7 @@ package com.xzll.test.controller.consumer;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rabbitmq.client.Channel;
-import com.xzll.common.rabbitmq.AbstractRabbitMQListener;
+import com.xzll.common.rabbitmq.liatener.AbstractRabbitMQListener;
 import com.xzll.test.entity.TestMqConstant;
 import com.xzll.test.entity.UserMQ;
 import lombok.extern.slf4j.Slf4j;

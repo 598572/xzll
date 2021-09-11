@@ -2,7 +2,7 @@ package com.xzll.test.controller;
 
 import cn.hutool.core.date.LocalDateTimeUtil;
 import com.xzll.common.base.Result;
-import com.xzll.common.rabbitmq.ProducerService;
+import com.xzll.common.rabbitmq.producer.ProducerService;
 import com.xzll.test.entity.TestEntity;
 import com.xzll.test.entity.TestMqConstant;
 import com.xzll.test.entity.UserMQ;

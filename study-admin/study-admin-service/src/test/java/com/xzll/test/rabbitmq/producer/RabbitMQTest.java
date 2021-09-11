@@ -1,6 +1,6 @@
 package com.xzll.test.rabbitmq.producer;
 
-import com.xzll.common.rabbitmq.ProducerService;
+import com.xzll.common.rabbitmq.producer.ProducerService;
 import com.xzll.test.StudyTestApplicationTest;
 import com.xzll.test.rabbitmq.TestMqConstant;
 import com.xzll.test.rabbitmq.UserMQ;

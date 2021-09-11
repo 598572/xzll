@@ -1,4 +1,6 @@
-package com.xzll.common.rabbitmq;
+package com.xzll.common.rabbitmq.producer;
+
+import com.xzll.common.rabbitmq.eneity.MqMessage;
 
 /**
  * @Author: hzz

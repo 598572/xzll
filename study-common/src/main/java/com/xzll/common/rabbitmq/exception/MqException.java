@@ -1,4 +1,4 @@
-package com.xzll.common.rabbitmq;
+package com.xzll.common.rabbitmq.exception;
 
 
 import com.xzll.common.base.XzllBaseException;

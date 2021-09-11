@@ -1,7 +1,9 @@
-package com.xzll.common.rabbitmq;
+package com.xzll.common.rabbitmq.liatener;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rabbitmq.client.Channel;
+import com.xzll.common.rabbitmq.exception.MqException;
+import com.xzll.common.rabbitmq.eneity.MqMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +32,7 @@ public abstract class AbstractRabbitMQListener<T extends MqMessage> {
 	//编码类型 也是 UTF-8
 	private static final String ENCODING = Charset.defaultCharset().name();
 	//消息体父类
-	public static final String PARENT_MESSAGE_CLASS = "com.xzll.common.rabbitmq.MqMessage";
+	public static final String PARENT_MESSAGE_CLASS = "com.xzll.common.rabbitmq.eneity.MqMessage";
 
 	//注入redis  用于消息幂等，防止重复消费
 	@Autowired

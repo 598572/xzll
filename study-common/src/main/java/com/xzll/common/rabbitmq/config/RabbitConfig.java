@@ -1,5 +1,7 @@
-package com.xzll.common.rabbitmq;
+package com.xzll.common.rabbitmq.config;
 
+import com.xzll.common.rabbitmq.producer.ProducerService;
+import com.xzll.common.rabbitmq.producer.impl.ProducerServiceImpl;
 import org.springframework.context.annotation.Bean;
 
 /**

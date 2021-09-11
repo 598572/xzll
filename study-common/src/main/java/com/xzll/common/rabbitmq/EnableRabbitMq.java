@@ -1,5 +1,6 @@
 package com.xzll.common.rabbitmq;
 
+import com.xzll.common.rabbitmq.config.RabbitConfig;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.ElementType;

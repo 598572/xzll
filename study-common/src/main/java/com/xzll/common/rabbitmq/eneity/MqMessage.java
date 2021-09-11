@@ -1,4 +1,4 @@
-package com.xzll.common.rabbitmq;
+package com.xzll.common.rabbitmq.eneity;
 
 import lombok.Data;
 

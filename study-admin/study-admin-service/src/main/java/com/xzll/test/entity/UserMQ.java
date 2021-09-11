@@ -1,6 +1,6 @@
 package com.xzll.test.entity;
 
-import com.xzll.common.rabbitmq.MqMessage;
+import com.xzll.common.rabbitmq.eneity.MqMessage;
 import lombok.Data;
 
 /**

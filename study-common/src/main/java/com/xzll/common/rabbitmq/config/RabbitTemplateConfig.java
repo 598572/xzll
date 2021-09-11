@@ -1,4 +1,4 @@
-package com.xzll.common.rabbitmq;
+package com.xzll.common.rabbitmq.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
@@ -12,7 +12,7 @@ import javax.annotation.PostConstruct;
 /**
  * @Author: hzz
  * @Date: 2021/9/10 13:09:58
- * @Description:
+ * @Description: 自定义确认机制
  */
 @Slf4j
 public class RabbitTemplateConfig implements RabbitTemplate.ConfirmCallback,RabbitTemplate.ReturnCallback{
@@ -32,6 +32,7 @@ public class RabbitTemplateConfig implements RabbitTemplate.ConfirmCallback,Rabb
 
 
 	/**
+	 *
 	 * 生产者 确认消息的配置
 	 *
 	 * @param correlationData
