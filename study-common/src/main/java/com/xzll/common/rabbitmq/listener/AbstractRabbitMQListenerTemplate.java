@@ -1,9 +1,12 @@
-package com.xzll.common.rabbitmq.liatener;
+package com.xzll.common.rabbitmq.listener;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rabbitmq.client.Channel;
-import com.xzll.common.rabbitmq.exception.MqException;
 import com.xzll.common.rabbitmq.eneity.MqMessage;
+import com.xzll.common.rabbitmq.exception.MqException;
+import com.xzll.common.rabbitmq.listener.nack.template.SaveNackMessage;
+import com.xzll.common.util.ThreadUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +19,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.nio.charset.Charset;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -23,10 +27,12 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2021/9/10 13:59:49
  * @Description: 抽象MQ监听器，通用的处理流程(即接收消息以及失败处理)都已经包含，子类可通过钩子函数来进行具体的处理逻辑
  */
-public abstract class AbstractRabbitMQListener<T extends MqMessage> {
+public abstract class AbstractRabbitMQListenerTemplate<T extends MqMessage> {
+
+	private static ThreadPoolExecutor saveNackMessageThread = ThreadUtil.getThreadPool(8, 16, 1000, "saveNackMessageThread");
 
 	//日志
-	protected static Logger logger = LoggerFactory.getLogger(AbstractRabbitMQListener.class);
+	protected static Logger logger = LoggerFactory.getLogger(AbstractRabbitMQListenerTemplate.class);
 	//消息序列化类型 默认UTF-8
 	private static final SerializerMessageConverter SERIALIZER_MESSAGE_CONVERTER = new SerializerMessageConverter();
 	//编码类型 也是 UTF-8
@@ -51,6 +57,24 @@ public abstract class AbstractRabbitMQListener<T extends MqMessage> {
 	 * @param content
 	 */
 	protected abstract void failExecuteHook(T content);
+
+	/**
+	 * 不声明为抽象方法，因为有的业务可能不需要处理死信消息
+	 *
+	 * @param content
+	 * @throws Exception
+	 */
+	protected void deadLetterMessageExecute(T content) throws Exception {
+	}
+
+	/**
+	 * 消费死信消息失败的处理逻辑
+	 *
+	 * @param content
+	 * @throws Exception
+	 */
+	protected void deadLetterMessageFailExecute(T content)  {
+	}
 
 
 	//--------------------------------------------一以下为模板方法，用于接收，幂等，ack, nack等---------------------------------------------
@@ -89,15 +113,16 @@ public abstract class AbstractRabbitMQListener<T extends MqMessage> {
 			//在catch中手动处理异常，当有异常且不手动处理的话，rabbitmq将会重试，重试参数配置见本类的最下边。
 			e.printStackTrace();
 			try {
-				if (dealFailAck(message, channel)) {
+				if (retryConsumer(message, channel)) {
 					logger.info("回归队列成功：" + message);
 				} else {
 					logger.error("回归队列失败：" + message);
-					//TODO 进行持久化 异步 使用线程池的方式 明天补上
+					//进行持久化 异步 使用线程池提交 Runnable
+					saveNackMessageThread.execute(SaveNackMessage.getStrategy(SaveNackMessage.NackTypeEnum.CONSUMER.getType()).template(message));
 					failExecuteHook(getContent(message));
 				}
 			} catch (Exception e1) {
-				//扔掉数据
+				//扔掉数据 ， 如果配置了死信交换机和队列 那么该消息将会进入死信队列 如果没有，那么MQ将会删除掉该消息
 				channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
 				logger.error("重试消费失败：" + message);
 				failExecuteHook(getContent(message));
@@ -106,7 +131,7 @@ public abstract class AbstractRabbitMQListener<T extends MqMessage> {
 	}
 
 	/**
-	 * 失败ACK
+	 * 重试消费 (也就是回归队列 这里设置4次)
 	 *
 	 * @param message
 	 * @param channel
@@ -114,7 +139,7 @@ public abstract class AbstractRabbitMQListener<T extends MqMessage> {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	private Boolean dealFailAck(Message message, Channel channel) throws IOException, InterruptedException {
+	private Boolean retryConsumer(Message message, Channel channel) throws IOException, InterruptedException {
 		T content = getContent(message);
 		//单个消息控制
 		String redisCountKey = "retry:" + message.getMessageProperties().getConsumerQueue() + content.getId();
@@ -127,7 +152,6 @@ public abstract class AbstractRabbitMQListener<T extends MqMessage> {
 			redisTemplate.opsForValue().setIfAbsent(redisCountKey, "1", 5, TimeUnit.MINUTES);
 				/*
 				basicNack参数解释:
-
 					deliveryTag:该消息的index
 					multiple：是否批量nack ， true:将拒绝确认所有小于deliveryTag的消息。
 					requeue：被拒绝的是否重新入队列，false的话是直接丢弃，true是回归到队列中。
@@ -158,12 +182,33 @@ public abstract class AbstractRabbitMQListener<T extends MqMessage> {
 					//b1=false的话，代表丢弃消息(如果配置了死信队列的话，该消息不会被丢弃 而是进入死信队列中)
 					channel.basicNack(deliveryTag, false, false);
 					logger.info(" {} 不回归队列，进行持久化处理或者放入死信队列中：", deliveryTag);
-					//TODO 异步 写入数据库
-
 					return false;
 			}
 		}
 		//实际上最好在这里进行Nack 但是为了看起来清晰些  我把Nack写到上边每一个需要响应Nack的地方了。
+	}
+
+	/**
+	 * 死信消息的模板方法
+	 * 具体的钩子方法 ( deadLetterMessageExecute , deadLetterMessageFailExecute ) 里的逻辑，就得看具体业务场景了
+	 *
+	 * @param message
+	 * @param channel
+	 */
+	protected void receiveDeadLetterMessage(Message message, Channel channel) {
+		logger.info("接收到死信消息:[{}]", JSON.toJSONString(message));
+		T content = getContent(message);
+		try {
+			//处理死信消息 ，这里做个打印，实际中就看业务场景了
+			deadLetterMessageExecute(content);
+			//返回ack给死信队列
+			channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+			logger.info("死信队列签收消息....消息路由键为:[{}]", message.getMessageProperties().getReceivedRoutingKey());
+		} catch (Exception e) {
+			//接收死信消息失败后的处理逻辑，这里也算只做个打印
+			deadLetterMessageFailExecute(content);
+			logger.error("死信队列消息签收失败", e);
+		}
 	}
 
 	/**

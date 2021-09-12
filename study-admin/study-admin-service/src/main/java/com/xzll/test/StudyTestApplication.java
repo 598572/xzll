@@ -1,6 +1,7 @@
 package com.xzll.test;
 
 import com.xzll.common.rabbitmq.EnableRabbitMq;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -17,6 +18,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableRetry
 @EnableScheduling
 @EnableRabbitMq
+@MapperScan(basePackages = {"com.xzll.*.mapper"})//由于在common模块中也有mapper （用于保存未投递/消费成功的消息）所以此处需要配置包扫描路径，确保common中的mapper也被spring扫描并管理
 public class StudyTestApplication {
 
     public static void main(String[] args) {

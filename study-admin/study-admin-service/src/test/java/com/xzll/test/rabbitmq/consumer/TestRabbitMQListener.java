@@ -2,7 +2,7 @@ package com.xzll.test.rabbitmq.consumer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rabbitmq.client.Channel;
-import com.xzll.common.rabbitmq.liatener.AbstractRabbitMQListener;
+import com.xzll.common.rabbitmq.listener.AbstractRabbitMQListenerTemplate;
 import com.xzll.test.rabbitmq.TestMqConstant;
 import com.xzll.test.rabbitmq.UserMQ;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ import java.io.IOException;
  */
 @Component
 @Slf4j
-public class TestRabbitMQListener extends AbstractRabbitMQListener<UserMQ> {
+public class TestRabbitMQListener extends AbstractRabbitMQListenerTemplate<UserMQ> {
 
     /**
      * 1. 创建交换机

@@ -1,9 +1,8 @@
 package com.xzll.test.controller.consumer;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rabbitmq.client.Channel;
-import com.xzll.common.rabbitmq.liatener.AbstractRabbitMQListener;
+import com.xzll.common.rabbitmq.listener.AbstractRabbitMQListenerTemplate;
 import com.xzll.test.entity.TestMqConstant;
 import com.xzll.test.entity.UserMQ;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +23,7 @@ import java.util.Map;
  */
 @Slf4j
 @Component
-public class TestRabbitMQListener extends AbstractRabbitMQListener<UserMQ> {
+public class TestRabbitMQListener extends AbstractRabbitMQListenerTemplate<UserMQ> {
 
 
 	//---------------------------------定义某业务 对应的 交换机 队列 routingKey ---------------------------------
@@ -84,6 +83,52 @@ public class TestRabbitMQListener extends AbstractRabbitMQListener<UserMQ> {
 				.with(TestMqConstant.TEST_ZHILIAN_RK);
 	}
 
+	//----------------------------- 业务消息监听 -----------------------------------------------
+
+	/**
+	 * 监听 某个queue 支持多个
+	 * queuesToDeclare不存在的话创建 queue
+	 *
+	 * @param message
+	 * @param channel
+	 * @throws IOException
+	 */
+	@Override
+	@RabbitListener(queues = TestMqConstant.TEST_ZHILIAN_Q)
+	protected void receiveMessage(Message message, Channel channel) throws Exception {
+		super.receiveMessage(message, channel);
+	}
+
+
+
+	//-----------------------------处理具体的业务逻辑---------------------------------------------
+	/**
+	 * 该方法被 receiveMessage调用。 用于执行 正常逻辑
+	 *
+	 * @param content
+	 * @throws Exception
+	 */
+	@Override
+	protected void successExecuteHook(UserMQ content) throws Exception {
+		log.info("开始消费消息，{}", JSONObject.toJSONString(content));
+		log.info("性别除以年龄 如果年龄为0则会抛出异常，用于检测消费失败时候的nack逻辑 sex:{} , age:{}", content.getSex(), content.getAge());
+		int i = content.getSex() / content.getAge();
+		logger.info("性别除以年龄得出结果为: {}", i);
+	}
+
+	//-----------------------------失败后的业务逻辑---------------------------------------------
+	/**
+	 * 该方法被 receiveMessage调用。 用于执行 异常逻辑
+	 *
+	 * @param content
+	 */
+	@Override
+	protected void failExecuteHook(UserMQ content) {
+		log.error("消费数据出错：{}", JSONObject.toJSONString(content));
+	}
+
+
+
 	//-----------------------------------------该业务对应的死信队列信息--------------------------------------------
 
 	/**
@@ -121,59 +166,34 @@ public class TestRabbitMQListener extends AbstractRabbitMQListener<UserMQ> {
 				.with(TestMqConstant.TEST_DEAD_LETTER_ROUTING_KEY);
 	}
 
-	//----------------------------- 业务消息监听 -----------------------------------------------
-
-	/**
-	 * 监听 某个queue 支持多个
-	 * queuesToDeclare不存在的话创建 queue
-	 *
-	 * @param message
-	 * @param channel
-	 * @throws IOException
-	 */
-	@Override
-	@RabbitListener(queues = TestMqConstant.TEST_ZHILIAN_Q)
-	protected void receiveMessage(Message message, Channel channel) throws Exception {
-		super.receiveMessage(message, channel);
-	}
 
 	//----------------------------- 死信消息监听 后期将封装到抽象父类中 -----------------------------
 
 	@RabbitListener(queues = TestMqConstant.TEST_DEAD_LETTER_QUEUE)
 	public void receiveDeadLetterMessage(Message message, Channel channel) {
-		log.info("接收到死信消息:[{}]", JSON.toJSONString(message));
-		try {
-			channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
-			log.info("死信队列签收消息....消息路由键为:[{}]", message.getMessageProperties().getReceivedRoutingKey());
-		} catch (IOException e) {
-			log.error("死信队列消息签收失败", e);
-		}
+		super.receiveDeadLetterMessage(message,channel);
 	}
 
-
-	//-----------------------------处理具体的业务逻辑---------------------------------------------
+	//-----------------------------成功 or 失败后的死信消息处理 ， 这里只是做个打印，实际中看业务场景了------------------------------------
 	/**
-	 * 该方法被 receiveMessage调用。 用于执行 正常逻辑
+	 * 接收到死信消息后的处理逻辑
 	 *
-	 * @param content
+	 * @param message
 	 * @throws Exception
 	 */
 	@Override
-	protected void successExecuteHook(UserMQ content) throws Exception {
-		log.info("开始消费消息，{}", JSONObject.toJSONString(content));
-		log.info("性别除以年龄 如果年龄为0则会抛出异常，用于检测消费失败时候的nack逻辑 sex:{} , age:{}", content.getSex(), content.getAge());
-		int i = content.getSex() / content.getAge();
-		logger.info("性别除以年龄得出结果为: {}", i);
+	protected void deadLetterMessageExecute(UserMQ message)throws Exception{
+		log.error("TestRabbitMQListener deadLetterMessageExecute 正常处理死信消息：{}", JSONObject.toJSONString(message));
 	}
 
-	//-----------------------------失败后的业务逻辑---------------------------------------------
 	/**
-	 * 该方法被 receiveMessage调用。 用于执行 异常逻辑
+	 * 接收死信消息失败后的处理逻辑
 	 *
-	 * @param content
+	 * @param message
+	 * @throws Exception
 	 */
 	@Override
-	protected void failExecuteHook(UserMQ content) {
-		log.error("消费数据出错：{}", JSONObject.toJSONString(content));
+	protected void deadLetterMessageFailExecute(UserMQ message){
+		log.error("TestRabbitMQListener deadLetterMessageExecute 接收死信消息失败 消息内容：{}", JSONObject.toJSONString(message));
 	}
 }
