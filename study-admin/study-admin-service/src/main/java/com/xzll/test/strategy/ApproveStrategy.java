@@ -15,11 +15,11 @@ public interface ApproveStrategy {
      * 进入审批流程
      *
      * @param params
-     * @param apApprovalRecoder
+     * @param approvalRecoder
      * @param extra             扩展参数
      * @return
      */
-    String approveByRefundStatus(Object params, Object apApprovalRecoder, Map<String, Object> extra);
+    String approveByRefundStatus(Object params, Object approvalRecoder, Map<String, Object> extra);
 
     /**
      * hook 子类自行实现 是否有扩展参数
