@@ -23,7 +23,7 @@ import java.util.Map;
  */
 @Slf4j
 @Component
-public class TestRabbitMQListener extends AbstractRabbitMQListenerTemplate<UserMQ> {
+public class TestDirectExchangeRabbitMQListener extends AbstractRabbitMQListenerTemplate<UserMQ> {
 
 
 	//---------------------------------定义某业务 对应的 交换机 队列 routingKey ---------------------------------
