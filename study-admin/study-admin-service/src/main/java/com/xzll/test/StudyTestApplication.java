@@ -14,7 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableDiscoveryClient
 @EnableFeignClients
 //@EnableTransactionManagement
-//@EnableAspectJAutoProxy
+//@EnableAspectJAutoProxy(exposeProxy = true)//exposeProxy 直译为 暴露代理
 @EnableRetry
 @EnableScheduling
 @EnableRabbitMq
