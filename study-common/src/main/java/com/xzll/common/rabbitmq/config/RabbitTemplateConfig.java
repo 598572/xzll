@@ -2,8 +2,8 @@ package com.xzll.common.rabbitmq.config;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
-import com.xzll.common.rabbitmq.eneity.DingTalkTypeEnum;
-import com.xzll.common.rabbitmq.eneity.SendFailNoticeEvent;
+import com.xzll.common.alarm.entity.enums.DingTalkTypeEnum;
+import com.xzll.common.alarm.entity.dto.SendFailNoticeEventDTO;
 import com.xzll.common.rabbitmq.listener.nack.template.SaveNackMessage;
 import com.xzll.common.util.ThreadUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -108,7 +108,7 @@ public class RabbitTemplateConfig implements RabbitTemplate.ConfirmCallback, Rab
 		maps.put("routingKey", routingKey);
 		String returnedMessage = JSON.toJSONString(maps);
 
-		SendFailNoticeEvent noticeEvent = new SendFailNoticeEvent();
+		SendFailNoticeEventDTO noticeEvent = new SendFailNoticeEventDTO();
 		noticeEvent.setLevel(1);
 		noticeEvent.setErrorMsg(
 				System.lineSeparator() +

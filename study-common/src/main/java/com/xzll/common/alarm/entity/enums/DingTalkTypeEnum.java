@@ -1,4 +1,4 @@
-package com.xzll.common.rabbitmq.eneity;
+package com.xzll.common.alarm.entity.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

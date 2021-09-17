@@ -54,6 +54,12 @@
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>com.taobao</groupId>
+			<artifactId>ding</artifactId>
+			<version>1</version>
+		</dependency>
+
 
 
     </dependencies>
