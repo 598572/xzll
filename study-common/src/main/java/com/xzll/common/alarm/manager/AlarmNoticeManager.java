@@ -2,12 +2,11 @@ package com.xzll.common.alarm.manager;
 
 import com.xzll.common.alarm.config.AlarmNoticeConfig;
 import com.xzll.common.alarm.config.NoticeMethodConfig;
-import com.xzll.common.alarm.service.AlarmNotice;
 import com.xzll.common.alarm.entity.enums.AlarmNoticeMethodEnum;
+import com.xzll.common.alarm.service.AlarmNotice;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -23,8 +22,8 @@ import java.util.*;
 public class AlarmNoticeManager {
 
 	//注入AlarmNotice接口的bean
-	@Autowired
-	private Map<String, AlarmNotice> beans = new HashMap();
+//	@Autowired
+//	private Map<String, AlarmNotice> beans = new HashMap();
 
 	/**
 	 * 发送报警信息
@@ -89,17 +88,17 @@ public class AlarmNoticeManager {
 			log.warn("通知放弃，没有指定通知方式");
 			return null;
 		} else {
-			if (Objects.isNull(beans) || beans.isEmpty()) {
-				return null;
-			}
+//			if (Objects.isNull(beans) || beans.isEmpty()) {
+//				return null;
+//			}
 			//根据传入的beanName找到对应的实现类
-			for (Map.Entry<String, AlarmNotice> entry : beans.entrySet()) {
-				if (Objects.equals(entry.getKey(), beanName)) {
-					alarmNotice = entry.getValue();
-				} else {
-					log.warn("通知放弃，没有找到指定通知方式 beanName ：{},beans:{}", beanName, beans);
-				}
-			}
+//			for (Map.Entry<String, AlarmNotice> entry : beans.entrySet()) {
+//				if (Objects.equals(entry.getKey(), beanName)) {
+//					alarmNotice = entry.getValue();
+//				} else {
+//					log.warn("通知放弃，没有找到指定通知方式 beanName ：{},beans:{}", beanName, beans);
+//				}
+//			}
 		}
 		return alarmNotice;
 	}
