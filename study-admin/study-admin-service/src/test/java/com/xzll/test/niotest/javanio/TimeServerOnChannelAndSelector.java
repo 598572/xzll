@@ -27,6 +27,12 @@ public class TimeServerOnChannelAndSelector {
 	 */
 	private static ExecutorService executor = new ThreadPoolExecutor(5, 10, 10, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1000));
 
+	public static void main(String[] args) {
+		System.out.println(1 << 0);
+		System.out.println(1 << 2);
+		System.out.println(1 << 3);
+		System.out.println(1 << 4);
+	}
 	/**
 	 * 使用selector和channel模拟服务器
 	 *
@@ -63,7 +69,7 @@ public class TimeServerOnChannelAndSelector {
 			//selectionKey.isReadable() ... 等类似方法 判断某Key对应的操作类型 ,并取出对应的channel进行请求处理
 			Set<SelectionKey> selectionKeys = selector.selectedKeys();
 			Iterator<SelectionKey> keyIterator = selectionKeys.iterator();
-
+			//如果检测到有事件就绪
 			while (keyIterator.hasNext()) {
 				SelectionKey selectionKey = keyIterator.next();
 				//System.out.println("选择器都有哪些key? : " + selectionKey.toString());

@@ -16,6 +16,12 @@
 
     <dependencies>
 
+		<dependency>
+			<groupId>com.xzll</groupId>
+			<artifactId>study-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
 <!--        <dependency>-->
 <!--            <groupId>com.alibaba.boot</groupId>-->
 <!--            <artifactId>nacos-config-spring-boot-actuator</artifactId>-->
@@ -33,6 +39,24 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-classic</artifactId>
+				</exclusion>
+				<exclusion>
+<!--					不排除的话将会和 log4j-slf4j-impl冲突，具体见：https://stackoverflow.com/questions/32366586/using-log4j2-with-slf4j-java-lang-stackoverflowerror-->
+					<artifactId>log4j-to-slf4j</artifactId>
+					<groupId>org.apache.logging.log4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
         <!--网关依赖-->
         <dependency>
@@ -52,6 +76,27 @@
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
             <version>${alibaba.cloud.version}</version>
         </dependency>
+
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>transmittable-thread-local</artifactId>
+			<version>2.14.2</version>
+		</dependency>
+		<dependency>
+<!--			https://mvnrepository.com/artifact/com.alibaba/log4j2-ttl-thread-context-map/1.4.0-->
+			<groupId>com.alibaba</groupId>
+			<artifactId>log4j2-ttl-thread-context-map</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.logging.log4j</groupId>
+					<artifactId>log4j-api</artifactId>
+				</exclusion>
+			</exclusions>
+			<version>1.4.0</version>
+			<scope>runtime</scope>
+		</dependency>
+
+
 
     </dependencies>
 

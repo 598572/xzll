@@ -1,6 +1,7 @@
 package com.xzll.test.controller;
 
 import cn.hutool.core.date.LocalDateTimeUtil;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.xzll.common.base.Result;
 import com.xzll.common.rabbitmq.producer.ProducerService;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static cn.hutool.core.date.DatePattern.NORM_DATETIME_FORMATTER;
 
@@ -33,7 +35,7 @@ import static cn.hutool.core.date.DatePattern.NORM_DATETIME_FORMATTER;
 @Slf4j
 @Api(tags = "测试controller")
 @RestController
-@RequestMapping("/testController")
+@RequestMapping("/admin/testController")
 public class TestController {
 
 	@Autowired
@@ -85,4 +87,117 @@ public class TestController {
 		return Result.createOK();
 	}
 
+	/**
+	 * 测试 ThreadLocal在多线程情况下子线程丢失父线程信息的问题
+	 *
+	 * The Stack and the Map are managed per thread and are based on ThreadLocal by default. The Map can be configured to use an InheritableThreadLocal (see the Configuration section). When configured this way, the contents of the Map will be passed to child threads. However, as discussed in the Executors class and in other cases where thread pooling is utilized, the ThreadContext may not always be automatically passed to worker threads. In those cases the pooling mechanism should provide a means for doing so. The getContext() and cloneStack() methods can be used to obtain copies of the Map and Stack respectively.
+	 *
+	 * Note that all methods of the ThreadContext class are static.
+	 *
+	 *
+	 *
+	 * With the ThreadContext logging statements can be tagged so log entries that were related in some way can be linked via these tags. The limitation is that this only works for logging done on the same application thread (or child threads when configured).
+	 *
+	 * Some applications have a thread model that delegates work to other threads, and in such models, tagging attributes that are put into a thread-local map in one thread are not visible in the other threads and logging done in the other threads will not show these attributes.
+	 *
+	 * Log4j 2.7 adds a flexible mechanism to tag logging statements with context data coming from other sources than the ThreadContext. See the manual page on extending Log4j for details.
+	 *
+	 * @param args
+	 * @throws Exception
+	 */
+	public static void main(String[] args) throws Exception {
+
+		ThreadLocal<String> threadLocal = new ThreadLocal<String>();
+		threadLocal.set("我是黄壮壮");
+		log.info("[ThreadLocal下] 父线程的值：" + threadLocal.get());
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				log.info("[ThreadLocal下] 子线程的值：" + threadLocal.get());
+			}
+		}).start();
+		Thread.sleep(5000);
+
+		System.out.println();
+
+		ThreadLocal<String> inheritableThreadLocal = new InheritableThreadLocal<>();
+		inheritableThreadLocal.set("我是黄壮壮");
+		log.info("[InheritableThreadLocal下] 父线程的值：" + inheritableThreadLocal.get());
+
+		List<Runnable> rs = Lists.newArrayList();
+		for (int i = 0; i < 10; i++) {
+			rs.add(new Runnable() {
+				@Override
+				public void run() {
+					log.info("[InheritableThreadLocal下] 子线程的值：" + inheritableThreadLocal.get());
+				}
+			});
+		}
+
+		for (int j = 0; j < 10; j++) {
+			CompletableFuture.runAsync(rs.get(j));
+		}
+		Thread.sleep(2000);
+	}
+
+	/**
+	 * InheritableThreadLocal使用举例 注意 子线程设置的值 会覆盖父线程中的值 而 TransmittableThreadLocal不会
+	 *
+	 */
+//	public static void main(String[] args) throws Exception{
+//		final ThreadLocal<UserMQ> threadLocal=new InheritableThreadLocal<>();
+//		threadLocal.set(new UserMQ("黄壮壮-父线程"));
+//		System.out.println("初始值："+threadLocal.get());
+//		Runnable runnable=()->{
+//			System.out.println("----------start------------");
+//			System.out.println("父线程的值："+threadLocal.get());
+//			threadLocal.set(new UserMQ("黄壮壮-子线程"));
+//			System.out.println("子线程覆盖后的值："+threadLocal.get());
+//			System.out.println("------------end---------------");
+//		};
+//		ExecutorService executorService= Executors.newFixedThreadPool(1);
+//
+//		executorService.submit(runnable);
+//		TimeUnit.SECONDS.sleep(1);
+//
+//		System.out.println();
+//		executorService.submit(runnable);
+//		TimeUnit.SECONDS.sleep(1);
+//
+//		System.out.println();
+//		executorService.submit(runnable);
+//	}
+
+	/**
+	 * TransmittableThreadLocalTest使用举例
+	 *
+	 * @param args
+	 * @throws Exception
+	 */
+//	public static void main(String[] args) throws Exception{
+//		final TransmittableThreadLocal<UserMQ> threadLocal=new TransmittableThreadLocal<>();
+//		threadLocal.set(new UserMQ("黄壮壮-父线程"));
+//		System.out.println("初始值："+threadLocal.get());
+//		Runnable task=()->{
+//			System.out.println("----------start------------");
+//			System.out.println("父线程的值："+threadLocal.get());
+//			threadLocal.set(new UserMQ("黄壮壮-子线程"));
+//			System.out.println("子线程覆盖后的值："+threadLocal.get());
+//			System.out.println("------------end---------------");
+//		};
+//		ExecutorService executorService= Executors.newFixedThreadPool(1);
+//
+//		//Runnable runnable= TtlRunnable.get(task);
+//		Runnable runnable= task;
+//
+//		executorService.submit(runnable);
+//		TimeUnit.SECONDS.sleep(1);
+//
+//		System.out.println();
+//		executorService.submit(runnable);
+//		TimeUnit.SECONDS.sleep(1);
+//
+//		System.out.println();
+//		executorService.submit(runnable);
+//	}
 }

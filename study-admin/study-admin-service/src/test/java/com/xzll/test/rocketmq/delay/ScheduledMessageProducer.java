@@ -1,5 +1,6 @@
 package com.xzll.test.rocketmq.delay;
 
+import com.xzll.common.rocketmq.RocketMqSendMessageHook;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.client.producer.SendResult;
@@ -17,6 +18,7 @@ public class ScheduledMessageProducer {
 
         producer.setNamesrvAddr("localhost:9876");
         producer.setSendMsgTimeout(60000);
+		producer.getDefaultMQProducerImpl().registerSendMessageHook(new RocketMqSendMessageHook());
 
         // 启动生产者
         producer.start();

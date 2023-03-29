@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import sun.misc.BASE64Decoder;
+//import sun.misc.BASE64Decoder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -60,7 +60,7 @@ public class JwtUtils {
         String basic = request.getHeader(AuthConstants.AUTHORIZATION_KEY);
         if (StrUtil.isNotBlank(basic) && basic.startsWith(AuthConstants.BASIC_PREFIX)) {
             basic = basic.replace(AuthConstants.BASIC_PREFIX, Strings.EMPTY);
-            String basicPlainText = new String(new BASE64Decoder().decodeBuffer(basic), "UTF-8");
+            String basicPlainText = "";//new String(new BASE64Decoder().decodeBuffer(basic), "UTF-8");
             clientId = basicPlainText.split(":")[0]; //client:secret
         }
         return clientId;

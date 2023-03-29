@@ -50,17 +50,17 @@ public class HzzMmap {
      * @throws Exception
      */
     public static void testFileMMapSequentialRW(MappedByteBuffer mappedByteBuffer1, MappedByteBuffer mappedByteBuffer2) throws Exception {
-        byte[] bytes = "测试字符串2测试字符串2测试字符串2测试字符串2测试字符串2测试字符串2测试字符串2测试字符串2测试字符串2测试字符串2测试字符串2".getBytes();
-        byte[] to = new byte[bytes.length];
-
-        //顺序写入
-        for (int i = 0; i < 100000; i++) {
-            mappedByteBuffer1.put(bytes);
-        }
-        //顺序读取
-        for (int i = 0; i < 100000; i++) {
-            mappedByteBuffer2.get(to);
-        }
+//        byte[] bytes = "测试字符串2测试字符串2测试字符串2测试字符串2测试字符串2测试字符串2测试字符串2测试字符串2测试字符串2测试字符串2测试字符串2".getBytes();
+//        byte[] to = new byte[bytes.length];
+//
+//        //顺序写入
+//        for (int i = 0; i < 100000; i++) {
+//            mappedByteBuffer1.put(bytes);
+//        }
+//        //顺序读取
+//        for (int i = 0; i < 100000; i++) {
+//            mappedByteBuffer2.get(to);
+//        }
     }
 
     /**

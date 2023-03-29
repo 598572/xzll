@@ -17,6 +17,19 @@
 
     <dependencies>
 
+		<dependency>
+			<groupId>com.xzll</groupId>
+			<artifactId>study-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+
+
+<!--		<dependency>-->
+<!--			<groupId>com.xzll</groupId>-->
+<!--			<artifactId>study-feign-spring-boot-starter</artifactId>-->
+<!--			<version>0.0.1-SNAPSHOT</version>-->
+<!--		</dependency>-->
 
         <!--nacos配置中心-->
         <dependency>

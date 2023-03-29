@@ -29,18 +29,18 @@ public class TimeClientOnChannel {
         }
         //如果走到这一步，说明连接建立成功
         while (true) {
-            buffer.put("GET CURRENT TIME".getBytes());//当发送的长度小于 GET CURRENT TIME 的length时候 服务端将响应 BAD_REQUEST
-            buffer.flip();
-            socketChannel.write(buffer);
-            buffer.clear();
-            if (socketChannel.read(buffer) > 0) {
-                buffer.flip();
-                byte[] response = new byte[buffer.remaining()];
-                buffer.get(response);
-                System.out.println("我是客户端，服务端响应内容为 : " + new String(response));
-
-            }
-            buffer.clear();
+//            buffer.put("GET CURRENT TIME".getBytes());//当发送的长度小于 GET CURRENT TIME 的length时候 服务端将响应 BAD_REQUEST
+//            buffer.flip();
+//            socketChannel.write(buffer);
+//            buffer.clear();
+//            if (socketChannel.read(buffer) > 0) {
+//                buffer.flip();
+//                byte[] response = new byte[buffer.remaining()];
+//                buffer.get(response);
+//                System.out.println("我是客户端，服务端响应内容为 : " + new String(response));
+//
+//            }
+//            buffer.clear();
             Thread.sleep(5000);
         }
 

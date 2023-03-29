@@ -4,6 +4,14 @@ server:
     session:
       cookie:
         name: SSO-SESSIONID # 自定义 Session 的 Cookie 名字，防止冲突。冲突后，会导致 SSO 登录失败
+spring:
+  application:
+    name: resource-server-sso
+  cloud:
+    nacos:
+      discovery:
+        group: study-test
+        namespace: 932a9da5-fdd6-4747-bc13-a3e97b089281
 security:
   oauth2:
     # OAuth2 Client 配置，对应 OAuth2ClientProperties 类 !!! 在这里配置资源服务器的client-id和 client-secret 授权服务器将会进行校验
@@ -15,4 +23,3 @@ security:
     # 资源服务器 配置，对应 ResourceServerProperties 类 !!! 在这里配置授权服务器检测token的接口url
     resource:
       token-info-uri: http://127.0.0.1:8080/oauth/check_token # 校验token有效性
-

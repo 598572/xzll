@@ -1,12 +1,14 @@
 package com.xzll.consumer.controller;
 
-import com.alibaba.fastjson.JSON;
+import cn.hutool.json.JSONUtil;
+import com.xzll.admin.api.dto.AdminUserDTO;
+import com.xzll.admin.api.feign.AdminUserFeignClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @Auther: Huangzhuangzhuang
@@ -14,20 +16,19 @@ import java.util.Map;
  * @Description:
  */
 @RestController
-@RequestMapping("/feign")
+@RequestMapping("/consumer/feign")
+@Slf4j
 public class ConfigConsumerController {
 
-//    @Autowired
-//    private FeignTestService feignTestService;
-//
-//    @RequestMapping("/test")
-//    public String get() {
-//        System.out.println("呵呵呵");
-//		List<Map<String, Object>> test = feignTestService.test();
-//
-//		String s = JSON.toJSONString(test);
-//        System.out.println(s);
-//        return s;
-//    }
+    @Autowired
+    private AdminUserFeignClient feignTestService;
+
+    @RequestMapping("/test")
+    public String findByUserName() {
+        log.info("测试feign接口开始");
+		List<AdminUserDTO> rsp = feignTestService.findByUserName("哈哈");
+		log.info("测试feign接口结束:{}", JSONUtil.toJsonStr(rsp));
+        return "ok";
+    }
 
 }

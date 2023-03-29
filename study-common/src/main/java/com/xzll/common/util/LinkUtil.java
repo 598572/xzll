@@ -1,5 +1,8 @@
 package com.xzll.common.util;
 
+import java.util.concurrent.CompletableFuture;
+
+
 public class LinkUtil {
 
 	public static final String link(Object... strs) {
@@ -13,5 +16,16 @@ public class LinkUtil {
 		}
 
 		return result.toString();
+	}
+
+
+	public static void main(String[] args) throws InterruptedException {
+		for (int i = 0; i < 10; i++) {
+			int finalI = i;
+			CompletableFuture.runAsync(()->{
+				System.out.println("当前i值："+ finalI);
+			});
+		}
+		Thread.sleep(300000);
 	}
 }

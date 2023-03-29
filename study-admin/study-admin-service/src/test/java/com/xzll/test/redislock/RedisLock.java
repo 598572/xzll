@@ -3,19 +3,14 @@ package com.xzll.test.redislock;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import com.xzll.test.redis.common.RedisCommonTest;
 import org.junit.Test;
-import org.redisson.Redisson;
-import org.redisson.api.RBucket;
 import org.redisson.api.RLock;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import sun.jvm.hotspot.debugger.posix.elf.ELFException;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 
-import static cn.hutool.core.date.DatePattern.NORM_DATETIME_FORMATTER;
 import static cn.hutool.core.date.DatePattern.PURE_DATETIME_FORMATTER;
 
 /**
@@ -153,7 +148,8 @@ public class RedisLock extends RedisCommonTest {
     public void testLock() {
         String format = LocalDateTimeUtil.format(LocalDateTime.now(), PURE_DATETIME_FORMATTER);
         String key = Thread.currentThread().getName() + "_" + this.getClass().getSimpleName() + "_" + format;
-        RLock lock = redissonClient.getLock(key);
+        RLock lock = redissonClient.getLock("某订单id10011929182");
+		System.out.println("当前name:"+lock.getName());
         try {
 //            boolean b = lock.tryLock(0, 5000, TimeUnit.HOURS);
 			//参数 time为锁的等待时间，锁的租约时间没填，在内部默认是30m 超过后自动续期。牛逼！！！

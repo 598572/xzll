@@ -16,4 +16,20 @@ public class UserMQ extends MqMessage {
 	private Integer age;
 	private String desc;
 	private String ctime;
+
+	public UserMQ(String name) {
+		this.name = name;
+	}
+
+	public UserMQ() {
+	}
+
+	public UserMQ(String name, Integer sex, String address, Integer age, String desc, String ctime) {
+		this.name = name;
+		this.sex = sex;
+		this.address = address;
+		this.age = age;
+		this.desc = desc;
+		this.ctime = ctime;
+	}
 }

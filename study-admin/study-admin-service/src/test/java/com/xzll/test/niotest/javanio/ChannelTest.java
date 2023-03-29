@@ -3,11 +3,8 @@ package com.xzll.test.niotest.javanio;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
-import java.nio.channels.FileChannel;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
@@ -50,7 +47,6 @@ public class ChannelTest {
             新连接的套接字通道，如果此通道处于非阻塞模式并且没有可用的连接可被接受，则为 null
 
             //总结: 如果是 SocketChannel.accept的话，会一直阻塞，如果是ServerSocketChannel.accept(); 且设置configureBlocking=false的话 不会阻塞会直接返回null ;
-
              */
             SocketChannel sc = ssc.accept();
             if (sc == null) {
@@ -68,7 +64,6 @@ public class ChannelTest {
                     }
                     allocate.clear();
                 }
-
                 System.out.println("Incoming connection from: "
                         + sc.socket().getRemoteSocketAddress());
                 buffer.rewind();

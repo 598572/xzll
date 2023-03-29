@@ -9,7 +9,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Calendar;
-import java.util.Objects;
 import java.util.concurrent.*;
 
 /**
@@ -96,7 +95,9 @@ public class TimeServerOnChannel {
 			} else {
 				socketChannel.configureBlocking(false);
 				System.out.println("有请求，将socketChannel 添加进 (LinkedBlockingQueue) 队列中去 ");
-				timeServer.dealRequestQueue.add(socketChannel);
+				//timeServer.dealRequestQueue.add(socketChannel);
+
+
 			}
 		}
 	}
@@ -116,8 +117,9 @@ public class TimeServerOnChannel {
 		@Override
 		public void run() {
 			try {
+				int read = socketChannel.read(byteBuffer);
 				//从 socketChannel 读取到 byteBuffer
-				if (socketChannel.read(byteBuffer) > 0) {
+				if (read> 0) {
 					while (true) {
 						//翻转 byteBuffer 以便get出数据
 						byteBuffer.flip();

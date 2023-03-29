@@ -2,7 +2,6 @@ package com.xzll.test.redis;
 
 import com.xzll.test.redis.common.RedisCommonTest;
 import org.junit.Test;
-import org.springframework.data.redis.core.ListOperations;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -10,6 +9,8 @@ import java.util.stream.Stream;
 
 
 public class RedisListTest extends RedisCommonTest {
+
+
 
 
     /**

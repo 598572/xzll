@@ -1,5 +1,13 @@
 server:
   port: 9090
+spring:
+  application:
+    name: resource-server
+  cloud:
+    nacos:
+      discovery:
+        group: study-test
+        namespace: 932a9da5-fdd6-4747-bc13-a3e97b089281
 security:
   oauth2:
     # 资源服务器配置，对应 OAuth2ClientProperties 类 !!! 在这里配置资源服务器的client-id和 client-secret 授权服务器将会进行校验

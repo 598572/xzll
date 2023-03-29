@@ -3,9 +3,9 @@ package com.xzll.test.redis;
 import com.xzll.test.redis.common.RedisCommonTest;
 import org.junit.Test;
 import org.springframework.data.redis.connection.RedisZSetCommands;
-import org.springframework.data.redis.core.ZSetOperations;
 
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -630,5 +630,22 @@ public class RedisZSetTest extends RedisCommonTest {
 
 
     }
+
+	public static void main(String[] args) {
+
+		String str="10110001944, 1011000522, 10110008336, 10110001744, 1021000786, 10210006232, 10110003346, 1011000393, 10210001433, 1021000918, 1011009313955, 10210006339, 1021000776, 1011005849052, 1011000789, 1011009313962, 10210000138, 10110008832, 10210003723, 10210001035, 10210005135, 10210003341, 1011009314193, 10110003325, 10210001335, 10210007540, 10210000312, 10110001330, 1021000816, 10210003641, 10210001532, 1011009314269, 1021000365, 10110003438, 10210000933, 10210000234, 10110000928, 10210005227, 10210009131, 1021009314099, 10110000932, 10110006629, 10110009637";
+
+		String[] split = str.split(",");
+		List<String> strings = Arrays.asList(split);
+		StringBuffer stringBuffer = new StringBuffer();
+
+		strings.forEach(x->{
+			String s = "\"" + x + "\"";
+			stringBuffer.append(s);
+		});
+		System.out.println(stringBuffer);
+
+	}
+
 
 }

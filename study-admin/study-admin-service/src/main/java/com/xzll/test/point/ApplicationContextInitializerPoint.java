@@ -39,6 +39,9 @@ public class ApplicationContextInitializerPoint implements ApplicationContextIni
 		System.out.println("时机: "+ "run 方法中的 this.prepareContext(); 的时候");
 		System.out.println("-------------ApplicationContextInitializerPoint # initialize 结束------------");
 		System.out.println();
+		ClassLoader classLoader = applicationContext.getClassLoader();
+		System.out.println(classLoader);
+
 
 	}
 

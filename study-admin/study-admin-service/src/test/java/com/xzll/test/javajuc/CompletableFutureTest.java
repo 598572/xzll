@@ -705,6 +705,18 @@ public class CompletableFutureTest extends JucCommonTest {
         //System.out.println(future1.get());
     }
 
+	public static void main(String[] args) {
+		String s="{\n" +
+				"    \\\"chatId\\\": \\\"200-4-2766-1-64\\\"," +
+				"    \\\"fromId\\\": \\\"10086\\\"," +
+				"    \\\"fromUserType\\\": 1," +
+				"    \\\"toId\\\": \\\"100\\\"," +
+				"    \\\"toUserType\\\": 4," +
+				"    \\\"chatType\\\": 4," +
+				"    \\\"op\\\":\\\"getMember\\\"" +
+				"}";
+		System.out.println(s);
+	}
     /**
      * 这个handle(); 一般用的比较多哦!!!!!!!!!!!!
      *
@@ -714,30 +726,41 @@ public class CompletableFutureTest extends JucCommonTest {
      */
     @Test
     public void handle() throws ExecutionException, InterruptedException {
-        CompletableFuture<Integer> future = CompletableFuture.supplyAsync(new Supplier<Integer>() {
-            @Override
-            public Integer get() {
-                int i = 10 / 0;
-                return new Random().nextInt(10);
-            }
-        }).handle(new BiFunction<Integer, Throwable, Integer>() {
-            //handle 可以处理 出异常和正常运行这两种情况 而thenApply就不行 出异常后不执行后边的
-            @Override
-            public Integer apply(Integer param, Throwable throwable) {
-                int result = -1;
-                if (throwable == null) {
-                    System.out.println(getCurrentThreadName() + "上个任务没出异常 ");
-                    result = param * 2;
-                } else {
-                    System.out.println(getCurrentThreadName() + "上个任务出异常啦! " + throwable.getMessage() + " ; 这里可以执行出异常后的逻辑! ");
-                }
-                return result;
-            }
-        }).thenApply((Integer s) -> {
-            System.out.println("上个流程出异常了! 但是我任然可以获取到出异常后的返回值! 上个流程的返回值是: " + s);
-            return s;
-        });
-        System.out.println("我是主线程获取到的future结果是(当出现异常时候 调用get方法将获取到异常时候我们设定的返回值) : " + future.get());
+
+    	CompletableFuture.runAsync(()->{
+			System.out.println(1/0);
+//			System.out.println(1/9);
+		}).handle((unused, throwable) -> {
+			if (throwable!=null){
+				log.error("出错啦:",throwable);
+			}
+			return null;
+		});
+
+//        CompletableFuture<Integer> future = CompletableFuture.supplyAsync(new Supplier<Integer>() {
+//            @Override
+//            public Integer get() {
+//                int i = 10 / 0;
+//                return new Random().nextInt(10);
+//            }
+//        }).handle(new BiFunction<Integer, Throwable, Integer>() {
+//            //handle 可以处理 出异常和正常运行这两种情况 而thenApply就不行 出异常后不执行后边的
+//            @Override
+//            public Integer apply(Integer param, Throwable throwable) {
+//                int result = -1;
+//                if (throwable == null) {
+//                    System.out.println(getCurrentThreadName() + "上个任务没出异常 ");
+//                    result = param * 2;
+//                } else {
+//                    System.out.println(getCurrentThreadName() + "上个任务出异常啦! " + throwable.getMessage() + " ; 这里可以执行出异常后的逻辑! ");
+//                }
+//                return result;
+//            }
+//        }).thenApply((Integer s) -> {
+//            System.out.println("上个流程出异常了! 但是我任然可以获取到出异常后的返回值! 上个流程的返回值是: " + s);
+//            return s;
+//        });
+//        System.out.println("我是主线程获取到的future结果是(当出现异常时候 调用get方法将获取到异常时候我们设定的返回值) : " + future.get());
     }
 
     /**
@@ -786,6 +809,8 @@ public class CompletableFutureTest extends JucCommonTest {
         System.out.println("done?" + future.isDone() + " cancel?" + future.isCancelled() + " exp?" + future.isCompletedExceptionally());
         future.get();
     }
+
+
 
     /**
      * join VS  get (都是等待一个或者多个(当在allOf后边调用时候)的future得返回结果 get可以设置超时时间 join没有时间设置  )

@@ -1,7 +1,14 @@
 spring:
+  application:
+    name: auth-server
   # datasource 数据源配置内容，对应 DataSourceProperties 配置属性类
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/authorization-server?useSSL=false&useUnicode=true&characterEncoding=UTF-8
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root # 数据库账号
     password: 123456 # 数据库密码
+  cloud:
+    nacos:
+      discovery:
+        group: study-test
+        namespace: 932a9da5-fdd6-4747-bc13-a3e97b089281
