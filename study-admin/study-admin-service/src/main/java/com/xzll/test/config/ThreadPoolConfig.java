@@ -22,7 +22,7 @@ public class ThreadPoolConfig {
 		executor.setKeepAliveSeconds(10);
 
 //		executor.setTaskDecorator(new TraceTaskDecorator());
-		executor.setThreadNamePrefix("push-center-");
+		executor.setThreadNamePrefix("xzll-center-");
 		executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
 
 		return executor;

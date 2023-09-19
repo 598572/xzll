@@ -27,6 +27,7 @@ public class RocketMqSendMessageHook implements SendMessageHook {
 		}
 	}
 
+
 	@Override
 	public void sendMessageAfter(SendMessageContext sendMessageContext) {
 	}

@@ -35,6 +35,7 @@ public class StrategyFactoryConfig {
 				.withEntry(RefundStatusEnum.REFUND_REFUSE.getStatus(), approveRefuseServiceImplStrategy())
 				.toMap();
 
+
 		return new StrategyFactory<Integer, ApproveStrategy>() {
 
 			private Map<Integer, ApproveStrategy> approveStrategyMap;
@@ -65,6 +66,7 @@ public class StrategyFactoryConfig {
 			}
 		}.build(approveStrategyMap);
 	}
+
 
 	/**
 	 * 进入下个流程

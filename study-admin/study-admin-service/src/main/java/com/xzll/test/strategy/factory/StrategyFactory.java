@@ -17,4 +17,8 @@ public interface StrategyFactory<T, S> {
         setStrategyMap(strategyMap);
         return this;
     }
+
+
+
+
 }

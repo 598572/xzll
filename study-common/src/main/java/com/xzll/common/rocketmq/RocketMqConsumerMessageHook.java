@@ -23,6 +23,7 @@ public class RocketMqConsumerMessageHook implements ConsumeMessageHook {
 
 	@Override
 	public void consumeMessageBefore(ConsumeMessageContext consumeMessageContext) {
+		Object mqTraceContext = consumeMessageContext.getMqTraceContext();
 		Iterator<MessageExt> iterator = consumeMessageContext.getMsgList().iterator();
 		while (iterator.hasNext()) {
 			MessageExt messageExt = iterator.next();
@@ -33,6 +34,19 @@ public class RocketMqConsumerMessageHook implements ConsumeMessageHook {
 		}
 	}
 
+
+	public static void main(String[] args) {
+
+		String s=null;
+		String z="  ";
+		String y="";
+		String s2="213";
+		System.out.println(org.springframework.util.StringUtils.hasText(s));
+		System.out.println(org.springframework.util.StringUtils.hasText(z));
+		System.out.println(org.springframework.util.StringUtils.hasText(y));
+		System.out.println(org.springframework.util.StringUtils.hasText(s2));
+
+	}
 	@Override
 	public void consumeMessageAfter(ConsumeMessageContext consumeMessageContext) {
 
