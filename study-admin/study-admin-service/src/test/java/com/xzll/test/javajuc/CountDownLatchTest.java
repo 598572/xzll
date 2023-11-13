@@ -29,8 +29,7 @@ public class CountDownLatchTest {
                 TimeUnit.MILLISECONDS,
                 CountDownLatchTest.asyncSenderThreadPoolQueue,
                 new ThreadFactory() {
-                    private AtomicInteger threadIndex = new AtomicInteger(0);
-
+                    private final AtomicInteger threadIndex = new AtomicInteger(0);
                     @Override
                     public Thread newThread(Runnable r) {
                         return new Thread(r, "CountDownLatchTest_" + this.threadIndex.incrementAndGet());
@@ -38,12 +37,12 @@ public class CountDownLatchTest {
                 });
         for (int i = 0; i < 10; i++) {
             executorService.execute(() -> {
-                System.out.println(Thread.currentThread().getName() + " run..");
+                System.out.println(Thread.currentThread().getName() + " do something..");
                 countDownLatch.countDown();
             });
         }
 
-        Thread.sleep(10000);
+        Thread.sleep(1000);
         countDownLatch.await();
         System.out.println("end");
         executorService.shutdown();

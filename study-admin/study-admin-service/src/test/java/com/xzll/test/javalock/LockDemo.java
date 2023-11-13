@@ -2,7 +2,6 @@ package com.xzll.test.javalock;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Date;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -17,6 +16,8 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * 解锁代码 在finally中
  * this.lock.readLock().unlock();
+ *
+ *  lock()：若lock被thread A取得，thread B会进入block状态，直到取得lock。 可能会出现死锁
  *
  */
 @Slf4j
@@ -41,6 +42,7 @@ public class LockDemo {
         Thread threadB = new Thread(runnable, "Thread B");
 
         threadA.start();
+        lock.unlock();
         Thread.sleep(5);
         threadB.start();
         log.info("线程A状态:{}",threadA.getState());
