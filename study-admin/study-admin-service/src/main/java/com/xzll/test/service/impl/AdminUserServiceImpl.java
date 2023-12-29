@@ -8,11 +8,12 @@ import com.xzll.test.entity.AdminUserDO;
 import com.xzll.test.mapper.AdminUserMapper;
 import com.xzll.test.service.AdminUserService;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.util.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -124,12 +125,14 @@ public class AdminUserServiceImpl implements AdminUserService {
 	 * @return
 	 */
 	@Override
-	@Transactional(rollbackFor = Exception.class)
 	public List<AdminUserDTO> findByUserName(String username) {
 		LambdaQueryWrapper<AdminUserDO> queryWrapper = new LambdaQueryWrapper<>();
-		queryWrapper.eq(AdminUserDO::getUsername, username);
-		List<AdminUserDO> adminUserDOS = adminUserMapper.selectList(queryWrapper);
-		return adminUserDOS.stream().map(adminUserDO -> {
+		queryWrapper.like(AdminUserDO::getUsername, username);
+		List<AdminUserDO> userList = adminUserMapper.selectList(queryWrapper);
+		if (CollectionUtils.isEmpty(userList)) {
+			return Lists.newArrayList();
+		}
+		return userList.stream().map(adminUserDO -> {
 			AdminUserDTO adminUserDTO = new AdminUserDTO();
 			BeanUtils.copyProperties(adminUserDO, adminUserDTO);
 			return adminUserDTO;

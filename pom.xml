@@ -67,6 +67,7 @@
         <module>study-auth</module>
         <module>study-gateway</module>
         <module>study-order</module>
+        <module>study-starter</module>
     </modules>
 
     <dependencies>
@@ -260,6 +261,8 @@
 			<version>1.4.0</version>
 			<scope>runtime</scope>
 		</dependency>
+
+
 
 
 

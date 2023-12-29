@@ -56,27 +56,31 @@
 
         <dependency>
             <groupId>com.xzll</groupId>
-            <artifactId>study-common</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.xzll</groupId>
             <artifactId>study-admin-api</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.xzll</groupId>
-            <artifactId>util-spring-boot-starter</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
+		<dependency>
+			<groupId>com.xzll</groupId>
+			<artifactId>util-spring-boot-starter</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 
-        <dependency>
-            <groupId>com.xzll</groupId>
-            <artifactId>pay-spring-boot-starter</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
+		<dependency>
+			<groupId>com.xzll</groupId>
+			<artifactId>pay-spring-boot-starter</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.xzll</groupId>
+			<artifactId>study-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+
+
 
 <!--		<dependency>-->
 <!--			<groupId>com.xzll</groupId>-->
@@ -279,12 +283,12 @@
 		</dependency>
 
 
-		<dependency>
-			<groupId>com.xzll</groupId>
-			<artifactId>study-agent</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>com.xzll</groupId>-->
+<!--			<artifactId>study-agent</artifactId>-->
+<!--			<version>0.0.1-SNAPSHOT</version>-->
+<!--			<scope>provided</scope>-->
+<!--		</dependency>-->
 
 
 
@@ -292,48 +296,48 @@
     </dependencies>
 
     <build>
-        <finalName>${project.parent.artifactId}</finalName>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
-<!--            <plugin>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
-<!--                <configuration>-->
-<!--                    &lt;!&ndash; 指定该Main Class为全局的唯一入口 &ndash;&gt;-->
-<!--                    <mainClass>com.xzll.test.StudyTestApplication</mainClass>-->
-<!--                    <layout>ZIP</layout>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!-- 指定该Main Class为全局的唯一入口 -->
+                    <mainClass>com.xzll.test.StudyTestApplication</mainClass>
+                    <layout>ZIP</layout>
+                </configuration>
+            </plugin>
 
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<!-- <finalName>${project.artifactId}-${project.version}</finalName>-->
-							<finalName>xxx</finalName>
-							<appendAssemblyId>false</appendAssemblyId>
-							<descriptors>
-								<descriptor>src/assembly/assembly-descriptor.xml</descriptor>
-							</descriptors>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+<!--			<plugin>-->
+<!--				<artifactId>maven-assembly-plugin</artifactId>-->
+<!--				<executions>-->
+<!--					<execution>-->
+<!--						<phase>package</phase>-->
+<!--						<goals>-->
+<!--							<goal>single</goal>-->
+<!--						</goals>-->
+<!--						<configuration>-->
+<!--							&lt;!&ndash; <finalName>${project.artifactId}-${project.version}</finalName>&ndash;&gt;-->
+<!--							<finalName>xxx</finalName>-->
+<!--							<appendAssemblyId>false</appendAssemblyId>-->
+<!--							<descriptors>-->
+<!--								<descriptor>src/assembly/assembly-descriptor.xml</descriptor>-->
+<!--							</descriptors>-->
+<!--						</configuration>-->
+<!--					</execution>-->
+<!--				</executions>-->
+<!--			</plugin>-->
 
-			<plugin>
-				<!--				解决 什么什么 goal编译失败的方法-->
-				<!--				https://stackoverflow.com/questions/42525139/maven-build-compilation-error-failed-to-execute-goal-org-apache-maven-plugins-->
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
+<!--			<plugin>-->
+<!--				&lt;!&ndash;				解决 什么什么 goal编译失败的方法&ndash;&gt;-->
+<!--				&lt;!&ndash;				https://stackoverflow.com/questions/42525139/maven-build-compilation-error-failed-to-execute-goal-org-apache-maven-plugins&ndash;&gt;-->
+<!--				<groupId>org.apache.maven.plugins</groupId>-->
+<!--				<artifactId>maven-compiler-plugin</artifactId>-->
+<!--				<configuration>-->
+<!--					<source>1.8</source>-->
+<!--					<target>1.8</target>-->
+<!--				</configuration>-->
+<!--			</plugin>-->
 
         </plugins>
 

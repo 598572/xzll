@@ -9,12 +9,31 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <artifactId>util-spring-boot-starter</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>util-spring-boot-starter</name>
     <description>util模块</description>
 
+<!--	<build>-->
+<!--		<plugins>-->
+<!--			<plugin>-->
+<!--				<groupId>org.springframework.boot</groupId>-->
+<!--				<artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--				<configuration>-->
+<!--					<classifier>exec</classifier>-->
+<!--				</configuration>-->
+<!--				<executions>-->
+<!--					<execution>-->
+<!--						<id>repackage</id>-->
+<!--						<goals>-->
+<!--							<goal>repackage</goal>-->
+<!--						</goals>-->
+<!--					</execution>-->
+<!--				</executions>-->
+<!--			</plugin>-->
+<!--		</plugins>-->
+<!--	</build>-->
 
 </project>

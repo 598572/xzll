@@ -9,7 +9,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <packaging>pom</packaging>
+	<packaging>jar</packaging>
 
     <artifactId>pay-spring-boot-starter</artifactId>
     <version>0.0.1-SNAPSHOT</version>

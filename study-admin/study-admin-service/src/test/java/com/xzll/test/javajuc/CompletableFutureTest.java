@@ -671,11 +671,22 @@ public class CompletableFutureTest extends JucCommonTest {
             int i = 9 / 0;
             return str;
         }).exceptionally(ex -> {
-            log.info("我是 exceptionally (相当于catch块)用来捕获异常的异常被我捕获: errorMsg: " + ex.getMessage());
-            return "Unknown!";
+            log.info("我是 exceptionally (相当于catch块)用来捕获异常的异常被我捕获: errorMsg: " , ex);
+            return null;
         });
         System.out.println("如果出现异常 ，exceptionally不会抛出异常 而会返回异常时候我们指定的返回值. " + future1.get());
     }
+
+	@Test
+	public void exceptionallyTest2() throws ExecutionException, InterruptedException {
+		int age = 901;
+		CompletableFuture.runAsync(() -> {
+			throw  new NullPointerException();
+		}).exceptionally(ex -> {
+			log.info("我是 exceptionally (相当于catch块)用来捕获异常的异常被我捕获: errorMsg: " , ex);
+			return null;
+		});
+	}
 
     /**
      * 当上边几个流程出现异常时候 可处理异常 但是不会没返回值 且如果调用future1.get();方法 会抛出异常!! 而 exceptionally不会抛出这是很重要的区别

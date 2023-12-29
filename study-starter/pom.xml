@@ -19,6 +19,7 @@
     <modules>
         <module>pay</module>
         <module>util</module>
+		<module>feign</module>
     </modules>
 
     <dependencies>

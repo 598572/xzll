@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -49,10 +48,7 @@ public class AdminUserController {
 	@GetMapping("/findByUserName")
 	@ApiOperation(value = "根据username查找用户", notes = "根据username查找用户")
 	public List<AdminUserDTO> findByUserName(@RequestParam(value = "username", required = true) String username) {
-		Date date = new Date();
-		long time = date.getTime();
-		log.info("当前时间：{}",time);
-		log.info("开始findByUserName接口");
+		log.info("根据姓名模糊匹配人员列表,入参:{}",username);
 		return adminUserService.findByUserName(username);
 	}
 
