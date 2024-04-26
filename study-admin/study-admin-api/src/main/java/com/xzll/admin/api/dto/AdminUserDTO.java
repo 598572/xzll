@@ -21,10 +21,18 @@ import java.time.LocalTime;
 @Accessors(chain = true)
 public class AdminUserDTO {
 
+	private Long id;
+
+
 	private String username;
+
 	private String password;
+
 	private String fullname;
+
 	private Integer sex;
+
+
 
 	public static void main(String[] args) {
 

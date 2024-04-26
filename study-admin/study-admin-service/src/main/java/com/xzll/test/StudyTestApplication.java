@@ -24,6 +24,7 @@ public class StudyTestApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(StudyTestApplication.class, args);
+		System.out.println("项目启动成功");
     }
 
 }

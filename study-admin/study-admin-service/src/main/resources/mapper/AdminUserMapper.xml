@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzll.test.mapper.AdminUserMapper" >
+
+
+	<resultMap id="BaseResultMap" type="com.xzll.test.entity.AdminUserDO">
+		<id column="id" jdbcType="BIGINT" property="id"/>
+		<result column="id" jdbcType="BIGINT" property="id"/>
+		<result column="username" jdbcType="VARCHAR" property="username"/>
+		<result column="password" jdbcType="VARCHAR" property="password"/>
+		<result column="fullname" jdbcType="VARCHAR" property="fullname"/>
+		<result column="sex" jdbcType="TINYINT" property="sex"/>
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, username, password, fullname, sex
+	</sql>
+
+
+	<insert id="batchInsertUser" parameterType="java.util.List">
+		insert into u_admin_user (username, password, fullname, sex)
+		values
+		<foreach collection="users" item="item" open="(" close=")" separator="),(">
+			#{item.username},#{item.password},#{item.fullname},#{item.sex}
+		</foreach>
+	</insert>
+
+	<update id="batchUpdateUser"  parameterType="java.util.List">
+		<foreach collection="users" item="item" index="index" open="" close="" separator=";">
+			update u_admin_user
+			<set>
+				<if test="item.username != null">
+					username = #{item.username,jdbcType=VARCHAR},
+				</if>
+				<if test="item.password != null">
+					password = #{item.password,jdbcType=VARCHAR},
+				</if>
+				<if test="item.fullname != null">
+					fullname = #{item.fullname,jdbcType=VARCHAR},
+				</if>
+				<if test="item.sex != null">
+					sex = #{item.sex,jdbcType=TINYINT},
+				</if>
+			</set>
+			where id = #{item.id,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+
+
+    <select id="selectByUserName" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from u_admin_user
+        where
+        username = #{username,jdbcType=VARCHAR}
+        order by id desc
+    </select>
+
+<!--    <select id="selectNoTakeByChatId" resultMap="BaseResultMap">-->
+<!--        select-->
+<!--        <include refid="Base_Column_List"/>-->
+<!--        from online_cs_ticket-->
+<!--        where-->
+<!--        chatId = #{chatId,jdbcType=VARCHAR}-->
+<!--        and dealStatus = 1 and currentSeatNumber = ''-->
+<!--        and ticketType in (1,2)-->
+<!--        order by id desc-->
+<!--    </select>-->
+
+
+<!--    <update id="batchUpdateCsTicketByIds">-->
+<!--        update online_cs_ticket-->
+<!--        set dealStatus = #{dealStatus,jdbcType=SMALLINT}, currentSeatNumber = #{currentSeatNumber,jdbcType=VARCHAR}-->
+<!--        where-->
+<!--        id in-->
+<!--        <foreach collection="ids" item="id" open="(" close=")" separator=",">-->
+<!--            #{id}-->
+<!--        </foreach>-->
+<!--    </update>-->
+
+<!--    <sql id="common_params">-->
+<!--        <where>-->
+<!--            <if test="record.id != null">-->
+<!--                and id = #{record.id}-->
+<!--            </if>-->
+<!--            <if test="record.queryFlag != null and record.queryFlag.size>0">-->
+<!--                and  ticketType  in-->
+<!--                <foreach collection="record.queryFlag" item="item" open="(" close=")" separator=",">-->
+<!--                    #{item}-->
+<!--                </foreach>-->
+<!--            </if>-->
+<!--            <if test="record.status != null and record.status.size>0">-->
+<!--                and  dealStatus  in-->
+<!--                <foreach collection="record.status" item="item" open="(" close=")" separator=",">-->
+<!--                    #{item}-->
+<!--                </foreach>-->
+<!--            </if>-->
+<!--            <if test="record.minId != null">-->
+<!--                and id &lt; #{record.minId}-->
+<!--            </if>-->
+
+<!--            <if test="record.currentSeatNumber != null">-->
+<!--                and currentSeatNumber = #{record.currentSeatNumber}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--    </sql>-->
+
+<!--    <select id="selectByCondition" resultMap="BaseResultMap">-->
+<!--        select-->
+<!--        <include refid="Base_Column_List"/>-->
+<!--        from online_cs_ticket-->
+<!--        <include refid="common_params"/>-->
+<!--        order by id desc-->
+<!--        <if test="record.pageSize != null and record.pageSize != 0  ">-->
+<!--            limit #{record.pageSize}-->
+<!--        </if>-->
+<!--    </select>-->
+
+
+<!--    <select id="selectCountByCondition" resultType="java.lang.Integer">-->
+<!--        select-->
+<!--        count(0)-->
+<!--        from online_cs_ticket-->
+<!--        <include refid="common_params"/>-->
+<!--    </select>-->
+
+
+<!--    <select id="selectByWorkFlowId" resultMap="BaseResultMap">-->
+<!--        select-->
+<!--        <include refid="Base_Column_List"/>-->
+<!--        from online_cs_ticket-->
+<!--        where-->
+<!--        workFlowId = #{workFlowId,jdbcType=BIGINT}-->
+<!--        order by id desc limit 1-->
+<!--    </select>-->
+
+
+
+<!--    <select id="selectMaxByThirdTicketIdAndChannel" resultMap="BaseResultMap">-->
+<!--        select-->
+<!--        <include refid="Base_Column_List"/>-->
+<!--        from online_cs_ticket-->
+<!--        where-->
+<!--        thirdTicketId = #{thirdTicketId,jdbcType=VARCHAR}-->
+<!--        order by id desc limit 1-->
+<!--    </select>-->
+
+
+<!--    <sql id="Ts_Base_Column_params">-->
+<!--        <where>-->
+<!--            delStatus = 0-->
+<!--            <if test="condition.createTimeBegin != null">-->
+<!--                and createTime >= #{condition.createTimeBegin}-->
+<!--            </if>-->
+<!--            <if test="condition.createTimeEnd != null">-->
+<!--                and createTime &lt;= #{condition.createTimeEnd}-->
+<!--            </if>-->
+<!--            <if test="condition.currentSeatNumber != null">-->
+<!--                and currentSeatNumber = #{condition.currentSeatNumber}-->
+<!--            </if>-->
+<!--            <if test="condition.dealStatus != null">-->
+<!--                and dealStatus = #{condition.dealStatus}-->
+<!--            </if>-->
+<!--            <if test="condition.dealStatusList != null and condition.dealStatusList.size>0">-->
+<!--                and  dealStatus  in-->
+<!--                <foreach collection="condition.dealStatusList" item="dStatus" open="(" close=")" separator=",">-->
+<!--                    #{dStatus}-->
+<!--                </foreach>-->
+<!--            </if>-->
+<!--            <if test="condition.complaintContent != null">-->
+<!--                and complaintContent like concat('%',#{condition.complaintContent,jdbcType=VARCHAR}, '%')-->
+<!--            </if>-->
+<!--            <if test="condition.complaintTypeId != null">-->
+<!--                and complaintTypeId =#{condition.complaintTypeId,jdbcType=INTEGER}-->
+<!--            </if>-->
+<!--            <if test="condition.commitUserPhoneEncrypt != null">-->
+<!--                and commitUserPhoneEncrypt =#{condition.commitUserPhoneEncrypt,jdbcType=VARCHAR}-->
+<!--            </if>-->
+<!--            <if test="condition.commitUserId != null">-->
+<!--                and commitUserId =#{condition.commitUserId,jdbcType=VARCHAR}-->
+<!--            </if>-->
+<!--            <if test="condition.createUserId != null">-->
+<!--                and createUserId =#{condition.createUserId,jdbcType=VARCHAR}-->
+<!--            </if>-->
+<!--            <if test="condition.complaintReasonId != null">-->
+<!--                and complaintReasonId =#{condition.complaintReasonId,jdbcType=INTEGER}-->
+<!--            </if>-->
+<!--            <if test="condition.complaintChannel != null">-->
+<!--                and complaintChannel =#{condition.complaintChannel,jdbcType=BIGINT}-->
+<!--            </if>-->
+<!--            <if test="condition.orderId != null">-->
+<!--                and orderId =#{condition.orderId,jdbcType=VARCHAR}-->
+<!--            </if>-->
+<!--            <if test="condition.complaintUserType != null">-->
+<!--                and complaintUserType =#{condition.complaintUserType,jdbcType=BIGINT}-->
+<!--            </if>-->
+<!--            <if test="condition.refundType != null">-->
+<!--                and refundType =#{condition.refundType,jdbcType=INTEGER}-->
+<!--            </if>-->
+<!--            <if test="condition.idList != null and condition.idList.size>0">-->
+<!--                and  id  in-->
+<!--                <foreach collection="condition.idList" item="item" open="(" close=")" separator=",">-->
+<!--                    #{item}-->
+<!--                </foreach>-->
+<!--            </if>-->
+<!--        </where>-->
+<!--    </sql>-->
+
+<!--    <select id="selectTsByCondition" resultType="com.wanshun.thirdplatform.datamodel.po.OnlineCsTicket">-->
+<!--        select-->
+<!--        <include refid="Base_Column_List"/>-->
+<!--        from online_cs_ticket-->
+<!--        <include refid="Ts_Base_Column_params"/>-->
+<!--        order by id desc-->
+<!--        <if test="condition.pageNo != null and condition.pageSize != null">-->
+<!--            limit #{condition.pageNo}, #{condition.pageSize}-->
+<!--        </if>-->
+<!--    </select>-->
+
+<!--    <select id="selectTsCountByCondition" resultType="java.lang.Integer">-->
+<!--        select count(*) from online_cs_ticket-->
+<!--        <include refid="Ts_Base_Column_params"/>-->
+<!--    </select>-->
+
+<!--	<insert id="batchInsertLog" >-->
+<!--		insert into u_admin_user (ticketId, transferTo, dealRemark, optType, optUserId, extraData, createTime,-->
+<!--		updateTime, attachment)-->
+<!--		values-->
+<!--		<foreach collection="list" item="item" open="(" close=")" separator="),(">-->
+<!--			#{item.ticketId},#{item.transferTo},#{item.dealRemark},#{item.optType},#{item.optUserId},#{item.extraData},-->
+<!--			#{item.createTime},#{item.updateTime},#{item.attachment}-->
+<!--		</foreach>-->
+<!--	</insert>-->
+
+</mapper>

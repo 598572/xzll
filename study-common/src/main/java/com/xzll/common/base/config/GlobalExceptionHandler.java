@@ -1,6 +1,6 @@
 package com.xzll.common.base.config;
 
-import com.xzll.common.base.Result;
+import com.xzll.common.base.XzllResponse;
 import com.xzll.common.base.XzllAuthException;
 import com.xzll.common.base.XzllBaseException;
 import lombok.extern.slf4j.Slf4j;
@@ -38,8 +38,8 @@ public class GlobalExceptionHandler {
 	 */
 	@ResponseBody
 	@ExceptionHandler(XzllBaseException.class)
-	public Result<Object> baseExceptionHandler(XzllBaseException e, HttpServletRequest request) {
-		return Result.createFail(e.getCode(), e.getMessage());
+	public XzllResponse<Object> baseExceptionHandler(XzllBaseException e, HttpServletRequest request) {
+		return XzllResponse.createFail(e.getCode(), e.getMessage());
 	}
 
 
@@ -51,14 +51,14 @@ public class GlobalExceptionHandler {
 	 */
 	@ResponseBody
 	@ExceptionHandler(MissingServletRequestParameterException.class)
-	public Result<Object> missingServletRequestParameterExceptionHandler(MissingServletRequestParameterException e, HttpServletRequest request) {
-		return Result.createFail(e.getParameterName() + BAD_REQUEST_MSG);
+	public XzllResponse<Object> missingServletRequestParameterExceptionHandler(MissingServletRequestParameterException e, HttpServletRequest request) {
+		return XzllResponse.createFail(e.getParameterName() + BAD_REQUEST_MSG);
 	}
 
 	@ResponseBody
 	@ExceptionHandler(XzllAuthException.class)
-	public Result<Object> xzllAuthExceptionHandler(XzllAuthException e, HttpServletRequest request) {
-		return Result.createFail(e.getMessage());
+	public XzllResponse<Object> xzllAuthExceptionHandler(XzllAuthException e, HttpServletRequest request) {
+		return XzllResponse.createFail(e.getMessage());
 	}
 
 	/**
@@ -69,10 +69,10 @@ public class GlobalExceptionHandler {
 	 */
 	@ResponseBody
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public Result<Object> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e, HttpServletRequest request) {
+	public XzllResponse<Object> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e, HttpServletRequest request) {
 		List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
 		List<String> collect = fieldErrors.stream().map(o -> o.getDefaultMessage()).collect(Collectors.toList());
-		return Result.createFail("10013", collect.toString());
+		return XzllResponse.createFail("10013", collect.toString());
 	}
 
 
@@ -84,10 +84,10 @@ public class GlobalExceptionHandler {
 	 */
 	@ResponseBody
 	@ExceptionHandler(BindException.class)
-	public Result<Object> bindExceptionHandler(BindException e, HttpServletRequest request) {
+	public XzllResponse<Object> bindExceptionHandler(BindException e, HttpServletRequest request) {
 		List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
 		List<String> collect = fieldErrors.stream().map(o -> o.getDefaultMessage()).collect(Collectors.toList());
-		return Result.createFail("10014", collect.toString());
+		return XzllResponse.createFail("10014", collect.toString());
 	}
 
 	/**
@@ -98,10 +98,10 @@ public class GlobalExceptionHandler {
 	 */
 	@ResponseBody
 	@ExceptionHandler(ConstraintViolationException.class)
-	public Result<Object> constraintViolationExceptionHandler(ConstraintViolationException e, HttpServletRequest request) {
+	public XzllResponse<Object> constraintViolationExceptionHandler(ConstraintViolationException e, HttpServletRequest request) {
 		Set<ConstraintViolation<?>> constraintViolations = e.getConstraintViolations();
 		List<String> collect = constraintViolations.stream().map(o -> o.getMessage()).collect(Collectors.toList());
-		return Result.createFail("10015", collect.toString());
+		return XzllResponse.createFail("10015", collect.toString());
 	}
 
 	/**
@@ -112,9 +112,9 @@ public class GlobalExceptionHandler {
 	 */
 	@ResponseBody
 	@ExceptionHandler(Exception.class)
-	public Result<Object> exceptionHandler(Exception e, HttpServletRequest request) {
+	public XzllResponse<Object> exceptionHandler(Exception e, HttpServletRequest request) {
 		log.error("unHandle exception: ", e);
-		return Result.createFail("100011", "系统忙，请稍后再试");
+		return XzllResponse.createFail("100011", "系统忙，请稍后再试");
 	}
 
 }

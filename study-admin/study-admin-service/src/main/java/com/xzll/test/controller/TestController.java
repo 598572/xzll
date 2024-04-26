@@ -3,7 +3,7 @@ package com.xzll.test.controller;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.xzll.common.base.Result;
+import com.xzll.common.base.XzllResponse;
 import com.xzll.common.rabbitmq.producer.ProducerService;
 import com.xzll.test.entity.TestEntity;
 import com.xzll.test.entity.TestMqConstant;
@@ -46,15 +46,15 @@ public class TestController {
 
 	@GetMapping("/test")
 	@ApiOperation(value = "测试第一个接口查询", notes = "测试第一个接口查询")
-	public Result<List<TestEntity>> test(@RequestParam(value = "param", required = true) String param) {
+	public XzllResponse<List<TestEntity>> test(@RequestParam(value = "param", required = true) String param) {
 		log.info("测试接口");
-		return Result.createOK(testService.testMybatiesPlus(param));
+		return XzllResponse.createOK(testService.testMybatiesPlus(param));
 	}
 
 
 	@GetMapping("/rabbitmqSendMsg")
 	@ApiOperation(value = "测试rabbitmq发送消息", notes = "测试rabbitmq发送消息")
-	public Result<List<TestEntity>> rabbitmqSendMsg(@RequestParam(value = "param", required = true) String param
+	public XzllResponse<List<TestEntity>> rabbitmqSendMsg(@RequestParam(value = "param", required = true) String param
 			, @RequestParam(value = "age", required = true) Integer age) {
 
 		UserMQ userMQ = new UserMQ();
@@ -65,7 +65,7 @@ public class TestController {
 
 		producerService.sendMsg(userMQ, TestMqConstant.TEST_ZHILIAN_EX, TestMqConstant.TEST_ZHILIAN_RK);
 
-		return Result.createOK();
+		return XzllResponse.createOK();
 	}
 
 
@@ -80,11 +80,11 @@ public class TestController {
 	 */
 	@GetMapping("/strategy")
 	@ApiOperation(value = "strategy测试策略模式", notes = "strategy测试策略模式")
-	public Result<List<TestEntity>> strategy(@RequestParam(value = "status", required = true) Integer status) {
+	public XzllResponse<List<TestEntity>> strategy(@RequestParam(value = "status", required = true) Integer status) {
 		log.info("strategy测试策略模式");
 		String s = approveStrategyFactory.getStrategy(status, true).approveByRefundStatus(new Object(), new Object(), Maps.newHashMap());
 		System.out.println("strategy测试策略模式返回结果" + s);
-		return Result.createOK();
+		return XzllResponse.createOK();
 	}
 
 	/**

@@ -44,7 +44,7 @@ public class LoggerDTO {
     @Override
     public String toString() {
         return LinkUtil.link(
-                "study-test access log, url:", this.url,
+                "study-test access log end, url:", this.url,
                 ", description:", this.description,
                 ", method:", this.httpMethod,
                 ", params:", this.params,

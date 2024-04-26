@@ -2,6 +2,7 @@ package com.xzll.test.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -198,4 +199,15 @@ public class RegexUtils {
         if (input == null) return null;
         return Pattern.compile(regex).matcher(input).replaceAll(replacement);
     }
+
+	public static void main(String[] args) throws InterruptedException {
+		for (int i = 0; i < 10; i++) {
+			int finalI = i;
+			CompletableFuture.runAsync(()->{
+				System.out.println("当前i值:"+ finalI);
+			});
+		}
+		Thread.sleep(5000L);
+
+	}
 }

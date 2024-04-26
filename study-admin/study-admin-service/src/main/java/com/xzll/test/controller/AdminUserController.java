@@ -7,6 +7,7 @@ import com.alibaba.excel.write.builder.ExcelWriterBuilder;
 import com.alibaba.excel.write.metadata.style.WriteCellStyle;
 import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
 import com.xzll.admin.api.dto.AdminUserDTO;
+import com.xzll.common.base.XzllResponse;
 import com.xzll.test.config.Excel2ExcelDataListener;
 import com.xzll.test.entity.ExcelResult;
 import com.xzll.test.entity.ExcelSource;
@@ -49,7 +50,56 @@ public class AdminUserController {
 	@ApiOperation(value = "根据username查找用户", notes = "根据username查找用户")
 	public List<AdminUserDTO> findByUserName(@RequestParam(value = "username", required = true) String username) {
 		log.info("根据姓名模糊匹配人员列表,入参:{}",username);
-		return adminUserService.findByUserName(username);
+		return adminUserService.findByUserNameForTestTrace(username);
+	}
+
+
+	//--------------------------------------------------下边为测试agent所开发的接口----------------------------------------------------
+
+
+
+
+	@PostMapping("/addUser")
+	@ApiOperation(value = "添加人员信息", notes = "添加人员信息")
+	public XzllResponse<Integer> addUser(@RequestBody AdminUserDTO user) {
+		int i = adminUserService.addUser(user);
+		return XzllResponse.createOK(i);
+	}
+
+	@PostMapping("/batchAddUser")
+	@ApiOperation(value = "添加人员信息", notes = "添加人员信息")
+	public XzllResponse<Object> batchAddUser(@RequestBody List<AdminUserDTO> users) {
+		adminUserService.batchAddUser(users);
+		return XzllResponse.createOK();
+	}
+
+	@GetMapping("/findUserByUid")
+	@ApiOperation(value = "查询人员信息根据uid", notes = "查询人员信息根据uid")
+	public XzllResponse<AdminUserDTO> findUserByUid(@RequestParam(value = "uid", required = true) Long uid) {
+		AdminUserDTO userByUid = adminUserService.findUserByUid(uid);
+		return XzllResponse.createOK(userByUid);
+	}
+
+	@GetMapping("/findListByUserName")
+	@ApiOperation(value = "根据username查找用户集合（模糊）", notes = "根据username查找用户集合（模糊）")
+	public XzllResponse<List<AdminUserDTO>> findListByUserName(@RequestParam(value = "username", required = true) String username) {
+		log.info("根据姓名模糊匹配人员列表,入参:{}",username);
+		List<AdminUserDTO> result = adminUserService.findByUserNameForTestAgent(username);
+		return XzllResponse.createOK(result);
+	}
+
+	@PostMapping("/updateUserByUid")
+	@ApiOperation(value = "更新人员信息根据uid", notes = "更新人员信息根据uid")
+	public XzllResponse<Integer> updateUserByUid(@RequestBody AdminUserDTO userDTO) {
+		int i = adminUserService.updateUserByUid(userDTO);
+		return XzllResponse.createOK(i);
+	}
+
+	@PostMapping("/batchUpdateUser")
+	@ApiOperation(value = "批量更新人员信息根据uid", notes = "批量更新人员信息根据uid")
+	public XzllResponse<Integer> batchUpdateUser(@RequestBody List<AdminUserDTO> userDTOs) {
+		adminUserService.batchUpdateUser(userDTOs);
+		return XzllResponse.createOK();
 	}
 
 	/**

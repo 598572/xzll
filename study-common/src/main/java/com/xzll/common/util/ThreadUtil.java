@@ -6,8 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.*;
@@ -41,28 +39,19 @@ public class ThreadUtil extends ThreadPoolExecutor {
 
 
 	public static void main(String[] args) {
-		long l = LocalDateTime.now().minusDays(30).withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.of("+8")).toEpochMilli();
-		long l2 = LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli();
-		System.out.println(l);
-		String s="{\n" +
-				"    \"msgType\":{\n" +
-				"        \"firstLevelMsgType\":3,\n" +
-				"        \"secondLevelMsgType\":301\n" +
-				"    },\n" +
-				"    \"body\":{\n" +
-				"        \"fromId\":\"1002\",\n" +
-				"        \"toId\":\"1003\",\n" +
-				"        \"msgFormat\":1,\n" +
-				"        \"msgId\":\"c31f0183-1ec5-4cc0-8872-ba60af889ad2\",\n" +
-				"        \"msgContent\":\"hello我是黄壮壮_sender_1002\",\n" +
-				"        \"msgType\":null,\n" +
-				"        \"msgCreateTime\":1645688223610,\n" +
-				"        \"sessionId\":\"网约车业务线_9999\"\n" +
-				"    },\n" +
-				"    \"extraMap\":null\n" +
-				"}";
-		System.out.println(s.replaceAll("\n",""));
-		System.out.println(l2);
+		ThreadPoolExecutor hzz = getThreadPool(3, 10, 100, "测试线程池监控");
+		for (int i = 0; i < 10; i++) {
+			int finalI = i;
+			hzz.execute(()->{
+				System.out.println("开始执行任务，i："+finalI);
+				try {
+					Thread.sleep(100L);
+				} catch (InterruptedException e) {
+				}
+				System.out.println("任务执行完毕，i： "+finalI);
+			});
+		}
+
 	}
 
 

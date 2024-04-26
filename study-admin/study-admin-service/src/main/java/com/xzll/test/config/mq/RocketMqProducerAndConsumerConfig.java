@@ -22,7 +22,7 @@ public class RocketMqProducerAndConsumerConfig {
 	public DefaultMQProducer defaultMQProducer() {
 		// 实例化一个生产者来产生消息
 		DefaultMQProducer producer = new DefaultMQProducer("ExampleProducerGroup");
-		producer.setNamesrvAddr("localhost:9876");
+		producer.setNamesrvAddr("172.30.128.65:9876");
 		producer.setSendMsgTimeout(60000);
 		//设置钩子
 		producer.getDefaultMQProducerImpl().registerSendMessageHook(new RocketMqSendMessageHook());
@@ -104,7 +104,7 @@ public class RocketMqProducerAndConsumerConfig {
 
 		// 实例化消费者 ，启动和订阅不在这里，是在有业务方订阅时候，被动触发 订阅和启动消费者逻辑
 		DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("ExampleConsumer");
-		consumer.setNamesrvAddr("127.0.0.1:9876");
+		consumer.setNamesrvAddr("172.30.128.65:9876");
 		consumer.getDefaultMQPushConsumerImpl().registerConsumeMessageHook(new RocketMqConsumerMessageHook());
 		return consumer;
 	}

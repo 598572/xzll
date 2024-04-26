@@ -1,7 +1,9 @@
 package com.xzll.test.config;
 
+import org.apache.logging.log4j.ThreadContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskDecorator;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.ThreadPoolExecutor;
@@ -21,7 +23,7 @@ public class ThreadPoolConfig {
 		executor.setQueueCapacity(2000);
 		executor.setKeepAliveSeconds(10);
 
-//		executor.setTaskDecorator(new TraceTaskDecorator());
+		executor.setTaskDecorator(new TraceTaskDecorator());
 		executor.setThreadNamePrefix("xzll-center-");
 		executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
 
@@ -31,24 +33,24 @@ public class ThreadPoolConfig {
 	/**
 	 * 官方大意：这是一个执行回调方法的装饰器，主要应用于传递上下文，或者提供任务的监控/统计信息
 	 */
-//	public static class TraceTaskDecorator implements TaskDecorator {
-//
-//		@Override
-//		public Runnable decorate(Runnable runnable) {
-//			String traceId = ThreadContext.get(XZLL_TRACE_ID);
-//			return () -> {
-//				try {
-//					//将主线程的信息(这里只是traceId就够了)，设置到子线程中
-//					ThreadContext.put(XZLL_TRACE_ID, traceId);
-//					//执行线程池任务
-//					runnable.run();
-//				} finally {
-//					//线程结束，清空这些信息，否则可能造成内存泄漏
-//					ThreadContext.remove(XZLL_TRACE_ID);
-//				}
-//			};
-//		}
-//	}
+	public static class TraceTaskDecorator implements TaskDecorator {
+
+		@Override
+		public Runnable decorate(Runnable runnable) {
+			String traceId = ThreadContext.get(XZLL_TRACE_ID);
+			return () -> {
+				try {
+					//将主线程的信息(这里只是traceId就够了)，设置到子线程中
+					ThreadContext.put(XZLL_TRACE_ID, traceId);
+					//执行线程池任务
+					runnable.run();
+				} finally {
+					//线程结束，清空这些信息，否则可能造成内存泄漏
+					ThreadContext.remove(XZLL_TRACE_ID);
+				}
+			};
+		}
+	}
 
 
 }

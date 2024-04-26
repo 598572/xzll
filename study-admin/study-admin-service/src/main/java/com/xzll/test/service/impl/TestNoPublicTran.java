@@ -1,6 +1,6 @@
 package com.xzll.test.service.impl;
 
-import com.xzll.common.base.Result;
+import com.xzll.common.base.XzllResponse;
 import com.xzll.test.entity.TestEntity;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,9 +28,9 @@ public class TestNoPublicTran {
 	private TransactionalInvalidationImpl transactionalInvalidation;
 	@GetMapping("/nopublic")
 	@ApiOperation(value = "strategy测试策略模式", notes = "strategy测试策略模式")
-	public Result<List<TestEntity>> nopublic(@RequestParam(value = "status", required = true) Integer status) {
+	public XzllResponse<List<TestEntity>> nopublic(@RequestParam(value = "status", required = true) Integer status) {
 		transactionalInvalidation.noPublicTransactional();
-		return Result.createOK();
+		return XzllResponse.createOK();
 	}
 
 }

@@ -46,7 +46,7 @@ public class LogRecordAspect {
 
 		HttpServletRequest request = getHttpServletRequest();
 
-		log.info("study-test access log, controller execute start, url:{}", request.getRequestURL().toString());
+		log.info("study-test access log begin, controller execute start, url:{}", request.getRequestURL().toString());
 
 		Object[] args = controllerJoinPoint.getArgs();
 

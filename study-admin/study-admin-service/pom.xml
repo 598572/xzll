@@ -64,12 +64,24 @@
 			<groupId>com.xzll</groupId>
 			<artifactId>util-spring-boot-starter</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.javassist</groupId>
+					<artifactId>javassist</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
 			<groupId>com.xzll</groupId>
 			<artifactId>pay-spring-boot-starter</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.javassist</groupId>
+					<artifactId>javassist</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 
@@ -77,6 +89,12 @@
 			<groupId>com.xzll</groupId>
 			<artifactId>study-common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.javassist</groupId>
+					<artifactId>javassist</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 
@@ -280,6 +298,12 @@
 			<groupId>com.xzll</groupId>
 			<artifactId>study-monitor</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+<!--			<exclusions>-->
+<!--				<exclusion>-->
+<!--					<artifactId>*</artifactId>-->
+<!--					<groupId>org.apache.logging.log4j</groupId>-->
+<!--				</exclusion>-->
+<!--			</exclusions>-->
 		</dependency>
 
 
@@ -287,11 +311,28 @@
 <!--			<groupId>com.xzll</groupId>-->
 <!--			<artifactId>study-agent</artifactId>-->
 <!--			<version>0.0.1-SNAPSHOT</version>-->
-<!--			<scope>provided</scope>-->
+<!--			<exclusions>-->
+<!--				<exclusion>-->
+<!--					<groupId>org.mybatis</groupId>-->
+<!--					<artifactId>mybatis</artifactId>-->
+<!--				</exclusion>-->
+<!--				<exclusion>-->
+<!--					<groupId>org.mybatis</groupId>-->
+<!--					<artifactId>mybatis-spring</artifactId>-->
+<!--				</exclusion>-->
+<!--			</exclusions>-->
 <!--		</dependency>-->
 
 
 
+
+		<dependency>
+			<groupId>com.sun</groupId>
+			<artifactId>tools</artifactId>
+			<version>1.8</version>
+			<scope>system</scope>
+			<systemPath>/Library/Java/JavaVirtualMachines/jdk1.8.0_311.jdk/Contents/Home/lib/tools.jar</systemPath>
+		</dependency>
 
     </dependencies>
 

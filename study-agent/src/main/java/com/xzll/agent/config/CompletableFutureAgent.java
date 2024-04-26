@@ -1,37 +1,42 @@
 package com.xzll.agent.config;
 
+//import com.alibaba.fastjson.JSON;
 
-import javassist.ClassPool;
+import com.xzll.agent.config.po.ClassInfo;
 import javassist.CtClass;
 import javassist.CtMethod;
-import javassist.NotFoundException;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
+import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.CodeSource;
 import java.security.ProtectionDomain;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
  * @Author: hzz
  * @Date: 2023/3/3 09:15:21
- * @Description: forkjoin 线程池监控
+ * @Description: 对CompletableFuture插桩
  */
-public class ForkJoinPoolMonitorAgentTest {
+public class CompletableFutureAgent {
 
-	private static volatile Map<String, String> kvs;
+	private static volatile Map<String, String> classNameMethodNameMap;
 
-	public static void main(String[] args) {
-		Map<String, String> stringStringMap = splitCommaColonStringToKV("11:22,33:44,55:66");
-//		System.out.println(JSON.toJSON(stringStringMap));
+	public static void main(String[] args) throws InterruptedException {
+		for (int i = 0; i < 10; i++) {
+			int finalI = i;
+			CompletableFuture.runAsync(()->{
+				System.out.println("当前i值:"+ finalI);
+			});
+		}
+		Thread.sleep(5000L);
+
 	}
 
 
@@ -74,11 +79,10 @@ public class ForkJoinPoolMonitorAgentTest {
 	 */
 	public static void premain(String args, Instrumentation inst) throws Exception {
 		//调用addTransformer()方法对启动时所有的类(应用层)进行拦截
-		kvs = splitCommaColonStringToKV(args);
+		classNameMethodNameMap = splitCommaColonStringToKV(args);
 
 		//需要监控的线程池
-		needMonitorThreadPool = kvs.entrySet().stream().map((entry) -> entry.getKey()).collect(Collectors.toList());
-
+		needMonitorThreadPool = classNameMethodNameMap.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList());
 
 		inst.addTransformer(new DefineTransformer(), true);
 	}
@@ -102,68 +106,40 @@ public class ForkJoinPoolMonitorAgentTest {
 		 */
 		@Override
 		public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-			System.out.println("transform_当前类加载器:" + loader);
-			System.out.println("transform_当前类名称:" + className);
-			ClassPool classPool = ClassPool.getDefault();
 
-			try {
-				classPool.appendClassPath("/Users/hzz/myself_project/xzll/study-agent/src/main/java/com/xzll/agent/config/");
-			} catch (NotFoundException e) {
-				e.printStackTrace();
-			}
-
-
+//			System.out.println("在main方法前加载类 : " + className);
+			ClassInfo classInfo = new ClassInfo(className, classfileBuffer, loader);
 			//要处理的类的函数
 			if (needMonitorThreadPool.contains(className)) {
 				System.out.println("transform_当前className:" + className);
-				String monitorMethod = kvs.get(className);
+				String monitorMethod = classNameMethodNameMap.get(className);
 				CtClass clazz = null;
-				System.out.println("transform_对线程池进行监控插桩");
 				try {
-					// 从ClassPool获得CtClass对象 (ClassPool对象是CtClass对象的容器，CtClass对象是类文件的抽象表示)
-//					final ClassPool classPool = ClassPool.getDefault();
-
-					//构建class pool
-//					ClassPool classPool = new ClassPool();
-//
-//					classPool.appendClassPath("/Users/");
-//					classPool.appendSystemPath();
-
-//					if (loader != null) {
-//						classPool.appendClassPath(new LoaderClassPath(loader));
-//					}
-
-					String classNameAfter = className.replaceAll("/", ".");
-					System.out.println("transform_classNameAfter:" + classNameAfter);
-					clazz = classPool.get(classNameAfter);
+					clazz = classInfo.getCtClass();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				System.out.println("对CompletableFuture的asyncRunStage方法进行插桩，从而输出每次任务运行后的线程池信息");
+				try {
 					CtMethod monitorMethodCt = clazz.getDeclaredMethod(monitorMethod);
-					System.out.println("transform_monitorMethodCt" + monitorMethodCt);
+					System.out.println("transform_before:" + monitorMethodCt.toString());
 					//植入探针方法
 					String methodBody =
-							"{" +
+								"{" +
 									"if ($2 == null) {throw new NullPointerException();}" +
 									"        java.util.concurrent.CompletableFuture/*<Void>*/ d = new java.util.concurrent.CompletableFuture/*<Void>*/();" +
-									"		 com.xzll.agent.config.util.ForkJoinMonitorUtils.beforeExecute($2);" +
+									"		 com.xzll.agent.config.advice.ForkJoinPoolMonitorAdvice.beforeExecute($2);" +
 									"        $1.execute(new java.util.concurrent.CompletableFuture$AsyncRun(d,$2));" +
-									"		 com.xzll.agent.config.util.ForkJoinMonitorUtils.afterExecute($$);" +
+									"		 com.xzll.agent.config.advice.ForkJoinPoolMonitorAdvice.afterExecute($$);" +
 									" return d; " +
-									"}";
-
-//					String methodBody =
-//							"{" +
-//									"if ($2 == null) {throw new NullPointerException();}" +
-//									"        java.util.concurrent.CompletableFuture/*<Void>*/ d = new java.util.concurrent.CompletableFuture/*<Void>*/();" +
-//									"		 System.out.println(\"之前插入\");" +
-//									"        $1.execute(new java.util.concurrent.CompletableFuture$AsyncRun(d,$2));" +
-//									"		 System.out.println(\"之后插入\");" +
-//									" return d; " +
-//									"}";
+								"}";
 					monitorMethodCt.setBody(methodBody);
-					//通过CtClass的toBytecode(); 方法来获取 被修改后的字节码
+					System.out.println("transform_after :" + monitorMethodCt.toString());
+					System.out.println();
+					//通过toBytecode获取并返回被修改后的字节码。从而替换未插桩前的代码
 					return clazz.toBytecode();
 				} catch (Exception e) {
 					e.printStackTrace();
-					System.out.println("插入探针出现异常：" + e.getMessage());
 				} finally {
 					if (null != clazz) {
 						//调用CtClass对象的detach()方法后，对应class的其他方法将不能被调用。但是，你能够通过ClassPool的get()方法，
@@ -174,47 +150,42 @@ public class ForkJoinPoolMonitorAgentTest {
 					}
 				}
 			}
-
-//			if (className.replace("/", ".").equals("org.springframework.boot.SpringApplication")) {
-//				//将 agent jar 中的 jar in jar 添加到类搜索路径，必须先执行这个，否则无法找到helper模块中的类
-//				appendAgentNestedJars(loader);
-//				//上报使用情况
-//				//不能这样使用，是因为 Transformer 类是由AppClassLoader加载的，所以它的依赖也会由AppClassLoader加载，即使contextLoader是LaunchedURLClassLoader
-////              UsageStatHelper.reportUsage();
-//				//只能反射调用
-//				Class usageStatHelper = loader.loadClass("com.wingli.agent.helper.UsageStatHelper");
-//				Method reportUsage = usageStatHelper.getDeclaredMethod("reportUsage");
-//				reportUsage.invoke(usageStatHelper);
-//			}
-
-
 			return classfileBuffer;
 		}
 
-		/**
-		 * 获取 agent jar 的路径，抄springboot的
-		 */
-		private String getAgentJarPath() {
-			ProtectionDomain protectionDomain = getClass().getProtectionDomain();
-			CodeSource codeSource = protectionDomain.getCodeSource();
-			URI location = null;
-			try {
-				location = (codeSource == null ? null : codeSource.getLocation().toURI());
-			} catch (URISyntaxException e) {
-				return null;
-			}
-			String path = (location == null ? null : location.getSchemeSpecificPart());
-			if (path == null) {
-				throw new IllegalStateException("Unable to determine code source");
-			}
-			File root = new File(path);
-			if (!root.exists()) {
-				throw new IllegalStateException(
-						"Unable to determine code source from " + root);
-			}
-			return path;
+
+		private void handle(CtClass[] nested) {
+			Arrays.stream(nested).forEach((e) -> {
+				if (e.getName().equals("java.util.concurrent.CompletableFuture$AsyncRun")) {
+					System.out.println("哈哈哈");
+				}
+			});
 		}
 
+
+//		/**
+//		 * 获取 agent jar 的路径，抄springboot的
+//		 */
+//		private String getAgentJarPath() {
+//			ProtectionDomain protectionDomain = getClass().getProtectionDomain();
+//			CodeSource codeSource = protectionDomain.getCodeSource();
+//			URI location = null;
+//			try {
+//				location = (codeSource == null ? null : codeSource.getLocation().toURI());
+//			} catch (URISyntaxException e) {
+//				return null;
+//			}
+//			String path = (location == null ? null : location.getSchemeSpecificPart());
+//			if (path == null) {
+//				throw new IllegalStateException("Unable to determine code source");
+//			}
+//			File root = new File(path);
+//			if (!root.exists()) {
+//				throw new IllegalStateException(
+//						"Unable to determine code source from " + root);
+//			}
+//			return path;
+//		}
 
 //		private void appendAgentNestedJars(ClassLoader classLoader) {
 //			String agentJarPath = getAgentJarPath();
@@ -251,5 +222,10 @@ public class ForkJoinPoolMonitorAgentTest {
 //
 //		}
 
+
+	}
+
+	private static String toClassName( String classFile) {
+		return classFile.replace('/', '.');
 	}
 }
